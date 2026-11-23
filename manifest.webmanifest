@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "BlobOS",
+  "short_name": "BlobOS",
+  "description": "A lightweight HTML5 OS.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#33B5E5",
+  "theme_color": "#33B5E5",
+  "icons": [
+    {
+      "src": "https://trollblob.pages.dev/icons/system.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

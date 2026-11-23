@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101820">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<title>BlobOS</title>
+
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="https://trollblob.pages.dev/icons/system.png">
+<link rel="apple-touch-icon" href="https://trollblob.pages.dev/icons/system.png">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style-system.css">
+</head>
+
+<body>
+
+<!-- Boot screen -->
+<div id="boot" class="boot-screen">
+    <div class="boot-name" hidden>BlobOS</div>
+    <div class="boot-loader" hidden></div>
+</div>
+
+<!-- Main desktop -->
+<main id="desktop" class="desktop" aria-label="BlobOS home screen">
+
+    <div class="wallpaper-shade"></div>
+
+    <!-- Live wallpaper -->
+    <div id="liveWallpaper" class="live-wallpaper"></div>
+
+    <!-- Status bar -->
+    <header class="top-bar">
+
+        <div class="status-left">
+            <span id="clock">12:00</span>
+            <span id="date"></span>
+        </div>
+
+        <div class="status-right">
+            <span class="material-icons status-icon wifi"></span>
+            <span class="material-icons status-icon data"></span>
+            <span class="material-icons status-icon battery"></span>
+
+            <button
+                id="trayButton"
+                class="top-icon-button"
+                aria-label="Open app tray"
+                title="Apps">
+                <img src="https://trollblob.pages.dev/icons/apptray.png" alt="Apps">
+            </button>
+        </div>
+
+    </header>
+
+    <!-- Home screen -->
+    <section id="homeScreen" class="home-screen">
+
+        <div class="home-welcome">
+            <div class="welcome-time" id="welcomeTime">12:00</div>
+            <div class="welcome-date" id="welcomeDate">Sunday, November 22</div>
+        </div>
+
+        <div id="homeShortcuts" class="home-shortcuts"></div>
+
+    </section>
+
+    <!-- Android-style navigation bar -->
+    <nav class="system-bar">
+
+        <button
+            id="backButton"
+            class="nav-key"
+            aria-label="Back">
+        </button>
+
+        <button
+            id="homeButton"
+            class="nav-key"
+            aria-label="Home">
+        </button>
+
+        <button
+            id="recentButton"
+            class="nav-key"
+            aria-label="Recent apps">
+        </button>
+
+        <div class="system-bar-spacer"></div>
+
+    </nav>
+
+</main>
+
+<!-- App tray -->
+<div id="appTray" class="tray-overlay" aria-hidden="true">
+
+    <div class="tray-panel">
+
+        <div class="tray-search">
+            <input
+                id="appSearch"
+                type="search"
+                placeholder="Search apps"
+                autocomplete="off">
+        </div>
+
+        <div id="appGrid" class="app-grid"></div>
+
+    </div>
+
+</div>
+
+<!-- App window -->
+<div id="appWindow" class="app-window" aria-hidden="true">
+
+    <header class="app-titlebar">
+
+        <button
+            id="appBack"
+            class="titlebar-button"
+            aria-label="Back">
+            <span class="material-icons">arrow_back</span>
+        </button>
+
+        <div id="appTitle" class="app-title">App</div>
+
+        <button
+            id="appMenu"
+            class="titlebar-button"
+            aria-label="App menu">
+            <span class="material-icons">more_vert</span>
+        </button>
+
+    </header>
+
+    <div id="appContent" class="app-content"></div>
+
+</div>
+
+<!-- Recent apps -->
+<div id="recentPanel" class="recent-panel" aria-hidden="true">
+
+    <div class="recent-heading">Recent apps</div>
+
+    <div id="recentList"></div>
+
+</div>
+
+<!-- Notification shade -->
+<div id="notificationShade" class="notification-shade">
+
+    <div class="shade-header">
+
+        <div>
+            <div class="shade-title">Notifications</div>
+            <div id="shadeDate" class="shade-date"></div>
+        </div>
+
+        <button
+            id="shadeSettings"
+            class="shade-button"
+            aria-label="Settings">
+            <span class="material-icons">settings</span>
+        </button>
+
+    </div>
+
+    <!-- Quick settings -->
+    <div class="quick-settings">
+
+        <button class="quick-tile active" data-setting="wifi">
+            <span class="material-icons">wifi</span>
+            <span>Wi-Fi</span>
+        </button>
+
+        <button class="quick-tile" data-setting="airplane">
+            <span class="material-icons">airplanemode_active</span>
+            <span>Airplane</span>
+        </button>
+
+        <button class="quick-tile active" data-setting="sound">
+            <span class="material-icons">volume_up</span>
+            <span>Sound</span>
+        </button>
+
+        <button class="quick-tile active" data-setting="rotation">
+            <span class="material-icons">screen_rotation</span>
+            <span>Rotation</span>
+        </button>
+
+    </div>
+
+    <!-- Brightness -->
+    <div class="brightness-control">
+
+        <span class="material-icons">brightness_low</span>
+
+        <input
+            id="brightnessSlider"
+            type="range"
+            min="30"
+            max="100"
+            value="100"
+            aria-label="Brightness">
+
+        <span class="material-icons">brightness_high</span>
+
+    </div>
+
+    <!-- Notifications -->
+    <div class="notification-heading">
+
+        <span>Notifications</span>
+
+        <button id="clearNotifications">Clear all</button>
+
+    </div>
+
+    <div id="notificationList" class="notification-list">
+        <div class="notification-empty">No notifications</div>
+    </div>
+
+    <!-- Shade footer -->
+    <div class="shade-footer">
+
+        <span>BlobOS</span>
+
+        <button id="shadeLock">Lock</button>
+
+        <button id="shadeClose">Close</button>
+
+    </div>
+
+</div>
+
+<!-- Lock screen -->
+<div id="lockScreen" class="lock-screen">
+
+    <div class="lock-wallpaper"></div>
+
+    <div class="lock-content">
+
+        <div id="lockTime" class="lock-time">12:00</div>
+
+        <div id="lockDate" class="lock-date"></div>
+
+        <div id="lockNotifications" class="lock-notifications"></div>
+
+        <div class="lock-unlock">
+            <span class="material-icons">lock_open</span>
+            <span>Swipe to unlock</span>
+        </div>
+
+    </div>
+
+    <!-- PIN entry -->
+    <div id="pinPanel" class="pin-panel">
+
+        <div>Enter PIN</div>
+
+        <input
+            id="pinInput"
+            type="password"
+            inputmode="numeric"
+            maxlength="12"
+            placeholder="PIN"
+            autocomplete="off">
+
+        <button id="pinUnlock">Unlock</button>
+
+        <div id="pinError"></div>
+
+    </div>
+
+</div>
+
+<!-- Daydream screensaver -->
+<div id="daydream" class="daydream">
+
+    <div id="daydreamContent" class="daydream-content"></div>
+
+</div>
+
+<!-- Toast messages -->
+<div id="toast" class="toast"></div>
+
+<!-- Scripts -->
+<script src="app.js"></script>
+<script src="blobos-system.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+
+[
+  {
+    "id": "clock",
+    "name": "Digital Clock",
+    "type": "clock"
+  },
+  {
+    "id": "bubbles",
+    "name": "Bubbles",
+    "type": "bubbles"
+  }
+]

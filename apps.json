@@ -1,0 +1,22 @@
+{
+  "com.blobmeld.blobbrowse": {
+    "icon": "https://trollblob.pages.dev/icons/browser.png",
+    "name": "Browser",
+    "iframe": "https://trollblob.pages.dev/browser"
+  },
+  "com.sys.calendar": {
+    "icon": "https://trollblob.pages.dev/icons/calendar.png",
+    "name": "Calendar",
+    "html": "<div>Coming Soon</div>"
+  },
+  "com.clock": {
+    "icon": "https://github.com/aosp-mirror/platform_frameworks_base/blob/lollipop-mr1-release/tests/LotsOfApps/res/drawable/ic_launcher_alarmclock.png?raw=true",
+    "name": "Clock",
+    "iframe": "/daydreams/clock.html"
+  },
+  "com.google.settings": {
+    "icon": "https://trollblob.pages.dev/icons/google-settings.png",
+    "name": "Google Settings",
+    "iframe": "/googlesettings"
+  }
+}
