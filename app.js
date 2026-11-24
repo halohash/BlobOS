@@ -871,7 +871,7 @@ async function refreshAppRepositories() {
             about.innerHTML =
                 "BlobOS<br>" +
                 "HTML5 desktop environment<br>" +
-                "Version 1.0<br><br>" +
+                "Open Source on github.com/halohash/BlobOS<br><br>" +
                 "Apps, icons and wallpapers are owned by their original creators. Roboto and Material Icons are owned by Google.";
 
             content.append(about);
