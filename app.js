@@ -17,6 +17,8 @@
     let currentApp = null;
     let recentApps = [];
     let toastTimer;
+    let appLaunchToken = 0;
+    let appClosePromise = null;
 
     const builtins = {
         "com.blobos.settings": {
@@ -28,6 +30,11 @@
             name: "Gallery",
             icon: "/icons/gallery.png",
             builtin: "gallery"
+        },
+        "com.blobos.browser": {
+        "icon": "/icons/browser.png",
+        "name": "Browser",
+        "iframe": "/browser"
         }
     };
 
@@ -66,16 +73,78 @@
         renderApps();
     }
 
-    function closeApp() {
+
+
+function animationsEnabled() {
+    return (
+        localStorage.getItem("blobos_animations") !== "false" &&
+        !document.documentElement.classList.contains("no-animations") &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+}
+
+function closeApp() {
+    if (appClosePromise) {
+        return appClosePromise;
+    }
+
+    if (!appWindow.classList.contains("open")) {
+        appWindow.setAttribute("aria-hidden", "true");
+        appContent.replaceChildren();
+        currentApp = null;
+        return Promise.resolve();
+    }
+
+    if (!animationsEnabled() || !appWindow.animate) {
         appWindow.classList.remove("open");
         appWindow.setAttribute("aria-hidden", "true");
-
+        appContent.replaceChildren();
         currentApp = null;
-
-        setTimeout(() => {
-            appContent.replaceChildren();
-        }, 180);
+        return Promise.resolve();
     }
+
+    appClosePromise = new Promise(resolve => {
+        const animation = appWindow.animate(
+            [
+                {
+                    opacity: 1,
+                    transform: "scale(1)"
+                },
+                {
+                    opacity: 0,
+                    transform: "scale(0.9)"
+                }
+            ],
+            {
+                duration: 250,
+                easing: "cubic-bezier(0.755, 0.05, 0.855, 0.06)",
+                fill: "forwards"
+            }
+        );
+
+        animation.onfinish = () => {
+            appWindow.classList.remove("open");
+            appWindow.setAttribute("aria-hidden", "true");
+
+            animation.cancel();
+
+            appContent.replaceChildren();
+            currentApp = null;
+
+            appClosePromise = null;
+            resolve();
+        };
+
+        animation.oncancel = () => {
+            appClosePromise = null;
+            resolve();
+        };
+    });
+
+    return appClosePromise;
+}
+
+
 
     function home() {
         closeApp();
@@ -303,72 +372,83 @@ async function refreshAppRepositories() {
     renderRecent();
 }
 
-    async function launchApp(id) {
-        const app = apps[id];
-        if (!app) return;
+async function launchApp(id) {
+    const app = apps[id];
+    if (!app) return;
 
-        closeTray();
-        recentPanel.classList.remove("open");
+    const launchToken = ++appLaunchToken;
 
-        currentApp = id;
-        addRecent(id);
-
-        $("appTitle").textContent = app.name || id;
-
-        appContent.replaceChildren();
-
-        appWindow.classList.add("open");
-        appWindow.setAttribute("aria-hidden", "false");
-
-        if (app.builtin === "settings") {
-            renderSettings();
-            return;
-        }
-
-        if (app.builtin === "gallery") {
-            renderGallery();
-            return;
-        }
-
-        if (app.html != null) {
-            const wrapper = document.createElement("div");
-
-            wrapper.className = "app-html";
-            wrapper.innerHTML = String(app.html);
-
-            appContent.append(wrapper);
-            return;
-        }
-
-        if (app.htmlurl) {
-            const frame = document.createElement("iframe");
-
-            frame.src = app.htmlurl;
-            frame.title = app.name || id;
-
-            frame.setAttribute(
-                "allow",
-                "fullscreen; autoplay; clipboard-read; clipboard-write"
-            );
-
-            appContent.append(frame);
-            return;
-        }
-
-        if (app.iframe) {
-            const frame = document.createElement("iframe");
-
-            frame.src = app.iframe;
-            frame.title = app.name || id;
-
-            frame.setAttribute("allow", "fullscreen; autoplay");
-
-            appContent.append(frame);
-            return;
-        }
-
-        appContent.textContent = "This app does not have an HTML source.";
+    if (
+        appWindow.classList.contains("open") ||
+        appClosePromise
+    ) {
+        await closeApp();
     }
+
+    if (launchToken !== appLaunchToken) return;
+
+    closeTray();
+    recentPanel.classList.remove("open");
+
+    currentApp = id;
+    addRecent(id);
+
+    $("appTitle").textContent = app.name || id;
+
+    appContent.replaceChildren();
+
+    appWindow.classList.add("open");
+    appWindow.setAttribute("aria-hidden", "false");
+
+    if (app.builtin === "settings") {
+        renderSettings();
+        return;
+    }
+
+    if (app.builtin === "gallery") {
+        renderGallery();
+        return;
+    }
+
+    if (app.html != null) {
+        const wrapper = document.createElement("div");
+
+        wrapper.className = "app-html";
+        wrapper.innerHTML = String(app.html);
+
+        appContent.append(wrapper);
+        return;
+    }
+
+    if (app.htmlurl) {
+        const frame = document.createElement("iframe");
+
+        frame.src = app.htmlurl;
+        frame.title = app.name || id;
+
+        frame.setAttribute(
+            "allow",
+            "fullscreen; autoplay; clipboard-read; clipboard-write"
+        );
+
+        appContent.append(frame);
+        return;
+    }
+
+    if (app.iframe) {
+        const frame = document.createElement("iframe");
+
+        frame.src = app.iframe;
+        frame.title = app.name || id;
+
+        frame.setAttribute("allow", "fullscreen; autoplay");
+
+        appContent.append(frame);
+        return;
+    }
+
+    appContent.textContent = "This app does not have an HTML source.";
+}
 
     function settingState() {
         return {

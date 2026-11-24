@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "BrowserBlob",
+  "short_name": "BrowserBlob",
+  "description": "A lightweight browser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e8eef3",
+  "theme_color": "#d6e3ef",
+  "icons": [
+    {
+      "src": "https://trollblob.pages.dev/icons/browser.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

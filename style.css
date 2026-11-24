@@ -26,7 +26,27 @@
     background: var(--holo-bg);
     font-synthesis: none;
 }
+@keyframes icsCloseExit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9); /* Shrinks to 90% in center */
+  }
+}
 
+@keyframes icsCloseEnter {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.95); /* Starts slightly recessed */
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 * {
     box-sizing: border-box;
 }
@@ -95,52 +115,6 @@ button {
     pointer-events: none;
     visibility: hidden;
     cursor: default;
-}
-
-.boot-mark {
-    width: 76px;
-    height: 76px;
-    flex: none;
-    border-radius: 4px;
-    background: linear-gradient(145deg, #52c9f1, #0099cc);
-    color: white;
-    display: grid;
-    place-items: center;
-    font-size: 48px;
-    font-weight: 300;
-    box-shadow: 0 0 22px #33b5e544;
-}
-
-.boot-name {
-    font-size: 22px;
-    font-weight: 300;
-    letter-spacing: 2px;
-}
-
-.boot-loader {
-    width: 110px;
-    height: 2px;
-    background: #26343e;
-    overflow: hidden;
-    margin-top: 18px;
-}
-
-.boot-loader::after {
-    content: "";
-    display: block;
-    width: 45%;
-    height: 100%;
-    background: var(--holo-blue);
-    animation: load 1s infinite ease-in-out;
-}
-
-@keyframes load {
-    from {
-        transform: translateX(-110%);
-    }
-    to {
-        transform: translateX(250%);
-    }
 }
 
 /* DESKTOP */
@@ -377,13 +351,10 @@ button {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity .2s ease-out, visibility .2s;
 }
 
 .tray-overlay.open {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
+    animation: icsCloseEnter 250ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
 .tray-panel {
@@ -619,7 +590,6 @@ button {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(32px) scale(.98);
     transition: opacity .22s cubic-bezier(0, 0, .2, 1), transform .22s cubic-bezier(0, 0, .2, 1), visibility .22s;
 }
 
@@ -627,7 +597,7 @@ button {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateY(0) scale(1);
+    animation: icsCloseEnter 250ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
     overflow: hidden;
 }
 

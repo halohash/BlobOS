@@ -1,9 +1,4 @@
 {
-  "com.blobmeld.blobbrowse": {
-    "icon": "/icons/browser.png",
-    "name": "Browser",
-    "iframe": "/browser"
-  },
   "com.riski.aisr": {
     "icon": "/icons/phone.png",
     "name": "AI Sponge Rehydrated",
