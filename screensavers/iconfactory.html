@@ -18,7 +18,7 @@
     }
     canvas {
       display: block;
-      background: color-mix(in srgb, #000000 50%, transparent 50%);
+      background: none
     }
   </style>
 </head>
@@ -34,16 +34,22 @@
   const CONFIG = {
     iconPaths: [
       '/icons/phone.png',
+      '/icons/apptray.png',
       '/icons/dial.png',
 	  '/icons/mic.png',
       '/icons/system.png',
       '/icons/google-settings.png',
       '/icons/google2014.png',
-      '/icons/googleplus2011.png'
+      '/icons/googleplus2011.png',
+      '/icons/gallery.png',
+      '/icons/back.png',
+      '/icons/home.png',
+      '/icons/recent.png',
+      '/icons/headphones.png'
     ],
-    maxIcons: 1000,          
-    spawnInterval: 500,    
-    gravity: 0.000005,         
+    maxIcons: 2000,          
+    spawnInterval: 250,    
+    gravity: 0,         
     bounce: 0.75,          
     iconSize: 64           
   };

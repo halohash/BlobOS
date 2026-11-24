@@ -373,7 +373,7 @@
   justify-content: center;
   overflow: hidden;
   color: white;
-  background: #000000;
+  background: rgba(0, 0, 0, .5);
   opacity: 0;
   visibility: hidden;
   transition: opacity .7s, visibility .7s;
