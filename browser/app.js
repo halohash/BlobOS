@@ -1,6 +1,6 @@
 (() => {
 "use strict";
-const CATALOG_URL="/blobbrowsesites/sites.json";
+const CATALOG_URL="./sites.json";
 const $=id=>document.getElementById(id);
 const address=$("address"),frame=$("pageFrame"),newTabView=$("newTab"),errorPage=$("errorPage");
 let sites={},tabs=[],activeTab=0,deferredInstall=null,toastTimer;
@@ -27,8 +27,7 @@ function renderError(message){
  showView("error");$("errorMessage").textContent=message;setStatus("Page not found");
 }
 function resolveHtmlUrl(path,key){
- // Relative htmlurl values are resolved inside /blobbrowsesites/.
- return new URL(path,location.origin+"/blobbrowsesites/").href;
+ return new URL(path,location.origin+"browser").href;
 }
 async function renderEntry(key,entry){
  const t=current();

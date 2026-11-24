@@ -1,0 +1,11 @@
+{
+  "example.iframe": {
+    "iframe": "https://example.com/"
+  },
+  "example.html": {
+    "html": "<h1>Hello, World!</h1>"
+  },
+  "holo.web": {
+    "iframe": "/holo-web/"
+  }
+}
