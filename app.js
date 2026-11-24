@@ -1,4 +1,8 @@
-
+window.errorMessage = function(){holoDialog({
+  title: 'Oops!',
+  message: 'Oops! That didn\'t work. Give it another shot in a moment.',
+  positiveText: 'OK'
+});}
 (() => {
     "use strict";
 
@@ -1037,11 +1041,7 @@ const factoryreset = makeButton(
         if (window.factoryReset) {
             window.factoryReset();
         } else {
-holoDialog({
-  title: 'Oops!',
-  message: 'Oops! That didn\'t work. Give it another shot in a moment.',
-  positiveText: 'OK'
-});
+errorMessage();
         }
     }
 );
