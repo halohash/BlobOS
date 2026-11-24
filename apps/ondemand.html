@@ -381,94 +381,63 @@
     }
 
     /* Player Modal */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: rgba(5, 7, 11, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
+    
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  display: none;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+}
 
-    .modal-backdrop.open {
-      display: flex;
-    }
+.modal-backdrop.open {
+  display: flex;
+}
 
-    .modal-dialog {
-      width: 100%;
-      max-width: 980px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
-      display: flex;
-      flex-direction: column;
-      max-height: 92vh;
-    }
+.modal-dialog {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  background: var(--surface);
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+}
 
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.85rem 1.15rem;
-      border-bottom: 1px solid var(--border);
-      gap: 1rem;
-    }
+.modal-header {
+  flex-shrink: 0;
+}
 
-    .modal-header h3 {
-      font-size: 1.05rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.player-stage {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+  background: #000;
+}
 
-    .close-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: none;
-      color: var(--text);
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+.player-stage video,
+.player-stage iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
 
-    .close-btn:hover {
-      background: rgba(255, 255, 255, 0.16);
-    }
+.modal-details {
+  flex-shrink: 0;
+  max-height: 20%;
+  overflow-y: auto;
+}
 
-    .player-stage {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #000;
-    }
-
-    .player-stage video,
-    .player-stage iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: block;
-    }
-
-    .modal-details {
-      padding: 1rem 1.15rem;
-      overflow-y: auto;
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
   </style>
 </head>
 
@@ -484,10 +453,6 @@
 
       <div class="controls">
         <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <circle cx="11" cy="11" r="7"></circle>
-            <path d="m16 16 4 4"></path>
-          </svg>
           <input
             type="search"
             id="searchInput"
@@ -497,12 +462,7 @@
         </div>
 
         <button class="refresh-btn" id="refreshBtn" type="button" aria-label="Refresh catalog">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M20 7v5h-5"></path>
-            <path d="M4 17v-5h5"></path>
-            <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12"></path>
-            <path d="M4 12l2.7 5a7 7 0 0 0 11.7-2"></path>
-          </svg>
+          
         </button>
       </div>
     </div>
@@ -682,11 +642,7 @@
         overlay.className = "play-overlay";
 
         overlay.innerHTML = `
-          <div class="play-circle">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <polygon points="6 4 20 12 6 20 6 4"></polygon>
-            </svg>
-          </div>
+          Play
         `;
 
         thumbWrap.appendChild(overlay);
