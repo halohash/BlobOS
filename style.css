@@ -19,7 +19,7 @@
     --holo-border: #354650;
     --holo-text: #ffffff;
     --holo-muted: #9aaeb9;
-    --holo-gradient: linear-gradient(to bottom, #293943, #18232b);
+    --holo-gradient: linear-gradient(to bottom, #000000, #272d33);
 
     font-family: "Classic Roboto Regular", "Droid Sans", "Arial", sans-serif;
     color: var(--holo-text);
@@ -787,7 +787,7 @@ button:focus-visible {
 .settings-sidebar {
     width: 230px;
     flex: none;
-    background: linear-gradient(to bottom, #293943, #17232b);
+    background: linear-gradient(to bottom, #293943 0%, #17232b 100%);
     border-right: 1px solid #40515b;
     display: flex;
     flex-direction: column;
@@ -826,19 +826,23 @@ button:focus-visible {
     gap: 15px;
 }
 
-.settings-nav button .material-icons {
-    font-size: 21px;
-    color: #9bb2c0;
-}
-
 .settings-nav button.active {
-    background: linear-gradient(to bottom, #304d5d, #203b4b);
+    background: rgba(51, 181, 229, 0.45);
     border-left-color: var(--holo-blue);
     border-top: 1px solid #456b7e;
     border-bottom: 1px solid #304b5b;
     color: white;
     text-shadow: 0 1px 2px #000;
     box-shadow: inset 0 1px #ffffff12;
+}
+.settings-nav button:hover,
+.settings-nav button:active {
+  background-color: rgba(51, 181, 229, 0.45);
+}
+
+.settings-nav button .material-icons {
+    font-size: 21px;
+    color: #9bb2c0;
 }
 
 .settings-nav button.active .material-icons {
@@ -857,7 +861,7 @@ button:focus-visible {
     overscroll-behavior: contain;
     background: linear-gradient(to bottom, #202b33, #131d24);
 }
-
+/*
 .settings-heading {
     padding: 24px 28px 18px;
     font-size: 23px;
@@ -866,7 +870,7 @@ button:focus-visible {
     border-bottom: 1px solid #40515b;
     background: linear-gradient(to bottom, #263741, #1c2931);
 }
-
+*/
 .settings-section {
     padding: 20px 28px;
     max-width: 760px;
@@ -1241,4 +1245,80 @@ input[type="checkbox"] {
     width: 100%;
     height: 100%;
     border: 0;
+}
+.settings-main, .settings-app {
+    background: linear-gradient(to bottom, #000000 0%, #222222 100%);
+}
+.settings-heading {
+    padding: 16px 16px 6px;
+    font-family: "Classic Roboto Bold", "Droid Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #33b5e5; /* Holo Blue Light */
+    background-color: transparent;
+    border-bottom: 2px solid #33b5e5;
+}
+.settings-section > button {
+  /* Typography */
+  font-family: "Classic Roboto Regular", "Droid Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+
+  /* Sizing & Shape */
+  min-height: 36px;
+  min-width: 64px;
+  padding: 8px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+
+  /* Default Holo Dark Fill & Borders */
+  background-color: rgba(110, 110, 110, 0.35);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.28); /* Signature top bevel */
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+
+  /* Smooth state transitions */
+  outline: none;
+  transition: background-color 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* Hover State */
+.settings-section > button:hover:not(:disabled) {
+  background-color: rgba(130, 130, 130, 0.45);
+  border-top-color: rgba(255, 255, 255, 0.38);
+}
+
+/* Keyboard Focus State (Holo Blue Glow) */
+.settings-section > button:focus-visible:not(:disabled) {
+  background-color: rgba(51, 181, 229, 0.25);
+  border-color: #33b5e5;
+  box-shadow: 0 0 4px rgba(51, 181, 229, 0.65);
+}
+
+/* Pressed / Active State (Holo Blue Fill + Outer Halo) */
+.settings-section > button:active:not(:disabled) {
+  background-color: rgba(51, 181, 229, 0.55);
+  background-image: none;
+  border-color: #33b5e5;
+  box-shadow: 0 0 8px rgba(51, 181, 229, 0.8), inset 0 0 2px rgba(51, 181, 229, 0.5);
+}
+
+/* Disabled State */
+.settings-section > button:disabled {
+  color: rgba(255, 255, 255, 0.3);
+  text-shadow: none;
+  background-color: rgba(110, 110, 110, 0.15);
+  background-image: none;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  cursor: not-allowed;
 }
