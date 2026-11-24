@@ -95,8 +95,8 @@ button {
 .boot-screen {
     position: fixed;
     inset: 0;
-    z-index: 1000;
-    background-color: #000000fa;
+    z-index: 100000;
+    background-color: #000000fd;
     background-image: var(--bootanimation, url("loader-fast.gif"));
     background-position: center center;
     background-repeat: no-repeat;
