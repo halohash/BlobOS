@@ -382,6 +382,7 @@
 .daydream.active {
   opacity: 1;
   visibility: visible;
+  cursor: none;
 }
 
 .daydream-content {
