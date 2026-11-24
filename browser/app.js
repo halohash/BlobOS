@@ -1,6 +1,6 @@
 (() => {
 "use strict";
-const CATALOG_URL="./sites.json";
+const CATALOG_URL="/browser/sites.json";
 const $=id=>document.getElementById(id);
 const address=$("address"),frame=$("pageFrame"),newTabView=$("newTab"),errorPage=$("errorPage");
 let sites={},tabs=[],activeTab=0,deferredInstall=null,toastTimer;
@@ -8,7 +8,7 @@ const current=()=>tabs[activeTab];
 function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2200)}
 function normalizeAddress(value){
  let raw=value.trim();if(!raw)return "new-tab";
- if(raw==="about:blank"||raw==="Browser://newtab")return "new-tab";
+ if(raw==="about:blank"||raw==="browser://newtab")return "new-tab";
  if(!/^[a-z][a-z0-9+.-]*:\/\//i.test(raw))raw="https://"+raw;
  try{return new URL(raw).hostname.toLowerCase().replace(/^www\./,"")}catch{return raw.toLowerCase()}
 }
@@ -27,7 +27,8 @@ function renderError(message){
  showView("error");$("errorMessage").textContent=message;setStatus("Page not found");
 }
 function resolveHtmlUrl(path,key){
- return new URL(path,location.origin+"browser").href;
+ // Relative htmlurl values are resolved inside /browser/.
+ return new URL(path,location.origin+"/browser/").href;
 }
 async function renderEntry(key,entry){
  const t=current();
