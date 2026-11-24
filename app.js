@@ -1031,7 +1031,20 @@ previewButton.style.cssText =
     "margin-top:18px;padding:12px 20px;background:#33b5e5;color:#fff;border:0;cursor:pointer;";
 
 content.append(previewButton);
-
+const factoryreset = makeButton(
+    "Factory Reset",
+    () => {
+        if (window.factoryReset) {
+            window.factoryReset();
+        } else {
+holoDialog({
+  title: 'Oops!',
+  message: 'Oops! That didn\'t work. Give it another shot in a moment.',
+  positiveText: 'OK'
+});
+        }
+    }
+);
 
             // Screensaver timeout
             const timeoutTitle = document.createElement("h3");

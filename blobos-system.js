@@ -1113,5 +1113,40 @@ window.blobosSetScreensaverEnabled = enabled => {
     console.log("BlobOS system initialized.");
   }
 
+
+
+async function firstRun() {
+  const dialog = await holoDialog({
+    title: 'System',
+    message: `Welcome to your new device! App Tray is on the top right.`,
+    positiveText: 'OK'
+  });
+
+  if (dialog === 'positive') {
+      localStorage.setItem("firstRun","false")
+  }
+}
+async function factoryReset() {
+  const choice = await holoDialog({
+    title: 'Factory Reset?',
+    message: 'Are you sure? This can\'t be reversed.',
+    negativeText: 'No',
+    positiveText: 'Yes'
+  });
+
+  if (choice === 'positive') {
+holoDialog({
+  title: 'Please Wait...',
+  message: 'Shutting Down',
+  positiveText: 'OK'
+});
+      localStorage.clear()
+      window.location.reload()
+      
+  }
+}
+
+window.factoryReset = factoryReset;
   startSystem();
+if (localStorage.getItem("firstRun") !== "false") {firstRun()}
 })();
