@@ -15,5 +15,11 @@
     "name": "Icon Factory",
     "type": "html",
     "src": "/screensavers/iconfactory.html"
+  },
+  {
+    "id": "ic_factory_single",
+    "name": "Icon Factory (Single)",
+    "type": "html",
+    "src": "/screensavers/singleiconfactory.html"
   }
 ]

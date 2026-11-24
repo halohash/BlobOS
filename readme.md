@@ -253,3 +253,8 @@ You can customize BlobOS by editing:
 ## License
 
 Roboto font by Google Fonts (Apache 2.0), Material Icons by Google (Apache 2.0), and BlobOS icons and assets by their respective creators.
+
+## Noticements 
+- Packages can have something else other than 'com.blobos'
+- Do not use Google AI Overview as long code breaks.
+- there should not be duplicate packages.

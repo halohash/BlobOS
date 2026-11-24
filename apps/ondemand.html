@@ -1,0 +1,846 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>On Demand — BlobOS</title>
+  <link rel="icon" href="/icons/ondemand.png">
+
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --surface: #141923;
+      --surface-hover: #1c2331;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f3f5f8;
+      --muted: #9aa4b2;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --radius: 14px;
+      --transition: 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(11, 14, 20, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.25rem;
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--surface);
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand span {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--accent);
+      background: rgba(59, 130, 246, 0.14);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex: 1;
+      max-width: 440px;
+      min-width: 220px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 0.9rem 0.55rem 2.2rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .refresh-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 0.8rem;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .refresh-btn:hover {
+      background: var(--surface-hover);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Category Filter Bar */
+    .categories {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem 1.25rem 0.25rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .categories::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.42rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition);
+    }
+
+    .cat-pill:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    .cat-pill.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Main Content Grid */
+    main {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.15rem 1.25rem 2.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 1.1rem;
+    }
+
+    @media (min-width: 600px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+      }
+    }
+
+    @media (min-width: 960px) {
+      .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1.4rem;
+      }
+    }
+
+    /* Media Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.65);
+      outline: none;
+    }
+
+    .thumb-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #0f131b;
+      overflow: hidden;
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 280ms ease;
+    }
+
+    .card:hover .thumb-wrap img {
+      transform: scale(1.04);
+    }
+
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .card:hover .play-overlay,
+    .card:focus-visible .play-overlay {
+      opacity: 1;
+    }
+
+    .play-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .badge-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(11, 14, 20, 0.85);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.48rem;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    .card-body {
+      padding: 0.9rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 0.98rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      margin-top: auto;
+      padding-top: 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* Status / Empty / Skeleton */
+    .status-box {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+    }
+
+    .status-box h2 {
+      color: var(--text);
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .skeleton-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .skeleton-thumb {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(90deg, #141923 25%, #1d2433 50%, #141923 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+
+    .skeleton-line {
+      height: 14px;
+      margin: 0.9rem 1rem;
+      border-radius: 6px;
+      background: #1d2433;
+      width: 75%;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Player Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(5, 7, 11, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-dialog {
+      width: 100%;
+      max-width: 980px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      max-height: 92vh;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.15rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+
+    .modal-header h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .player-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .player-stage video,
+    .player-stage iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .modal-details {
+      padding: 1rem 1.15rem;
+      overflow-y: auto;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="#">
+        <img src="/icons/ondemand.png" alt="On Demand">
+        <h1>On Demand</h1>
+        <span>BlobOS</span>
+      </a>
+
+      <div class="controls">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m16 16 4 4"></path>
+          </svg>
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="Search titles..."
+            aria-label="Search titles"
+          >
+        </div>
+
+        <button class="refresh-btn" id="refreshBtn" type="button" aria-label="Refresh catalog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M20 7v5h-5"></path>
+            <path d="M4 17v-5h5"></path>
+            <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12"></path>
+            <path d="M4 12l2.7 5a7 7 0 0 0 11.7-2"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="categories" id="categoryBar" aria-label="Media categories">
+  </nav>
+
+  <main>
+    <section class="grid" id="catalogGrid" aria-label="On Demand catalog">
+      <div class="status-box">
+        Loading catalog...
+      </div>
+    </section>
+  </main>
+
+  <!-- Player Modal -->
+  <div class="modal-backdrop" id="playerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+
+      <div class="modal-header">
+        <h3 id="modalTitle">Now Playing</h3>
+
+        <button
+          class="close-btn"
+          id="closeModalBtn"
+          type="button"
+          aria-label="Close player"
+        >×</button>
+      </div>
+
+      <div class="player-stage" id="playerStage">
+      </div>
+
+      <div class="modal-details" id="modalDetails">
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    const ENDPOINT = "/ondemand.json";
+    const FALLBACK_THUMB = "/icons/ondemand.png";
+
+    const gridEl = document.getElementById("catalogGrid");
+    const categoryBarEl = document.getElementById("categoryBar");
+    const searchInputEl = document.getElementById("searchInput");
+    const refreshBtnEl = document.getElementById("refreshBtn");
+    const modalEl = document.getElementById("playerModal");
+    const modalTitleEl = document.getElementById("modalTitle");
+    const playerStageEl = document.getElementById("playerStage");
+    const modalDetailsEl = document.getElementById("modalDetails");
+    const closeModalBtnEl = document.getElementById("closeModalBtn");
+
+    let allItems = [];
+    let activeCategory = "All";
+    let searchQuery = "";
+
+    function normalizeItems(raw) {
+      const list = Array.isArray(raw)
+        ? raw
+        : raw && Array.isArray(raw.items)
+        ? raw.items
+        : raw && Array.isArray(raw.videos)
+        ? raw.videos
+        : raw && Array.isArray(raw.content)
+        ? raw.content
+        : [];
+
+      return list.map((item, idx) => ({
+        id: item.id ?? idx,
+        title: String(item.title || item.name || "Untitled Media"),
+        thumbnail: item.thumbnail || item.thumb || item.poster || item.image || item.icon || FALLBACK_THUMB,
+        url: item.url || item.src || item.stream || item.video || item.link || "",
+        category: String(item.category || item.genre || item.type || "General"),
+        duration: item.duration || item.length || "",
+        description: item.description || item.summary || ""
+      }));
+    }
+
+    function renderSkeletons() {
+      gridEl.innerHTML = Array.from({ length: 8 })
+        .map(() => `
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-thumb"></div>
+            <div class="skeleton-line"></div>
+          </div>
+        `)
+        .join("");
+    }
+
+    function renderCategories() {
+      const categories = [
+        "All",
+        ...new Set(allItems.map(i => i.category).filter(Boolean))
+      ];
+
+      if (!categories.includes(activeCategory)) {
+        activeCategory = "All";
+      }
+
+      categoryBarEl.innerHTML = "";
+
+      categories.forEach(cat => {
+        const btn = document.createElement("button");
+
+        btn.type = "button";
+        btn.className = "cat-pill" + (cat === activeCategory ? " active" : "");
+        btn.textContent = cat;
+
+        btn.addEventListener("click", () => {
+          activeCategory = cat;
+          renderCategories();
+          renderGrid();
+        });
+
+        categoryBarEl.appendChild(btn);
+      });
+    }
+
+    function renderGrid() {
+      const q = searchQuery.trim().toLowerCase();
+
+      const filtered = allItems.filter(item => {
+        const matchesCat =
+          activeCategory === "All" || item.category === activeCategory;
+
+        const matchesSearch =
+          !q ||
+          item.title.toLowerCase().includes(q) ||
+          item.category.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q);
+
+        return matchesCat && matchesSearch;
+      });
+
+      if (!filtered.length) {
+        gridEl.innerHTML = `
+          <div class="status-box">
+            <h2>No titles found</h2>
+            <p>Try clearing your search filter or check /ondemand.json.</p>
+          </div>
+        `;
+        return;
+      }
+
+      gridEl.innerHTML = "";
+
+      filtered.forEach(item => {
+        const card = document.createElement("article");
+
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", "Play " + item.title);
+
+        const thumbWrap = document.createElement("div");
+        thumbWrap.className = "thumb-wrap";
+
+        const img = document.createElement("img");
+        img.src = item.thumbnail;
+        img.alt = item.title;
+        img.loading = "lazy";
+
+        img.onerror = function () {
+          if (this.src !== window.location.origin + FALLBACK_THUMB) {
+            this.src = FALLBACK_THUMB;
+          }
+        };
+
+        thumbWrap.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "play-overlay";
+
+        overlay.innerHTML = `
+          <div class="play-circle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="6 4 20 12 6 20 6 4"></polygon>
+            </svg>
+          </div>
+        `;
+
+        thumbWrap.appendChild(overlay);
+
+        if (item.duration) {
+          const badge = document.createElement("span");
+          badge.className = "badge-duration";
+          badge.textContent = item.duration;
+          thumbWrap.appendChild(badge);
+        }
+
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        const titleEl = document.createElement("h2");
+        titleEl.className = "card-title";
+        titleEl.textContent = item.title;
+
+        const metaEl = document.createElement("div");
+        metaEl.className = "card-meta";
+
+        const catSpan = document.createElement("span");
+        catSpan.textContent = item.category;
+
+        metaEl.appendChild(catSpan);
+        body.appendChild(titleEl);
+        body.appendChild(metaEl);
+
+        card.appendChild(thumbWrap);
+        card.appendChild(body);
+
+        const launch = () => openPlayer(item);
+
+        card.addEventListener("click", launch);
+
+        card.addEventListener("keydown", e => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            launch();
+          }
+        });
+
+        gridEl.appendChild(card);
+      });
+    }
+
+    function isDirectVideo(url) {
+      return /\.(mp4|webm|ogg|m3u8|mov)(\?.*)?$/i.test(url);
+    }
+
+    function openPlayer(item) {
+      modalTitleEl.textContent = item.title;
+
+      modalDetailsEl.textContent =
+        item.description ||
+        item.category +
+        (item.duration ? " • " + item.duration : "");
+
+      playerStageEl.innerHTML = "";
+
+      if (!item.url) {
+        const message = document.createElement("div");
+
+        message.style.cssText =
+          "display:flex;align-items:center;justify-content:center;height:100%;color:#9aa4b2;padding:1rem;text-align:center;";
+
+        message.textContent =
+          "No playable stream URL provided for this entry.";
+
+        playerStageEl.appendChild(message);
+
+      } else if (isDirectVideo(item.url)) {
+        const video = document.createElement("video");
+
+        video.src = item.url;
+        video.poster = item.thumbnail;
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+
+        playerStageEl.appendChild(video);
+
+      } else {
+        const iframe = document.createElement("iframe");
+
+        iframe.src = item.url;
+        iframe.allow = "autoplay; fullscreen; picture-in-picture";
+        iframe.allowFullscreen = true;
+        iframe.title = item.title;
+
+        playerStageEl.appendChild(iframe);
+      }
+
+      modalEl.classList.add("open");
+    }
+
+    function closePlayer() {
+      modalEl.classList.remove("open");
+      playerStageEl.innerHTML = "";
+    }
+
+    async function loadCatalog() {
+      renderSkeletons();
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          cache: "no-store"
+        });
+
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+
+        allItems = normalizeItems(data);
+
+        renderCategories();
+        renderGrid();
+
+      } catch (err) {
+        gridEl.innerHTML = `
+          <div class="status-box">
+            <h2>Unable to load On Demand catalog</h2>
+            <p>Could not fetch ${ENDPOINT} (${err.message}).</p>
+          </div>
+        `;
+      }
+    }
+
+    searchInputEl.addEventListener("input", e => {
+      searchQuery = e.target.value;
+      renderGrid();
+    });
+
+    refreshBtnEl.addEventListener("click", loadCatalog);
+    closeModalBtnEl.addEventListener("click", closePlayer);
+
+    modalEl.addEventListener("click", e => {
+      if (e.target === modalEl) {
+        closePlayer();
+      }
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && modalEl.classList.contains("open")) {
+        closePlayer();
+      }
+    });
+
+    loadCatalog();
+
+  })();
+  </script>
+
+</body>
+</html>
