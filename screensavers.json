@@ -9,5 +9,11 @@
     "id": "bubbles",
     "name": "Bubbles",
     "type": "bubbles"
+  },
+  {
+    "id": "ic_factory",
+    "name": "Icon Factory",
+    "type": "html",
+    "src": "/screensavers/iconfactory.html"
   }
 ]

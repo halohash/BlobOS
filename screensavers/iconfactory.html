@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icon Factory</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: color-mix(in srgb, #000000 50%, transparent 50%);
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="wallpaper"></canvas>
+
+<script>
+  const canvas = document.getElementById('wallpaper');
+  const ctx = canvas.getContext('2d');
+
+  
+  const CONFIG = {
+    iconPaths: [
+      '/icons/phone.png',
+      '/icons/dial.png',
+	  '/icons/mic.png',
+      '/icons/system.png',
+      '/icons/google-settings.png',
+      '/icons/google2014.png',
+      '/icons/googleplus2011.png'
+    ],
+    maxIcons: 1000,          
+    spawnInterval: 500,    
+    gravity: 0.000005,         
+    bounce: 0.75,          
+    iconSize: 64           
+  };
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  
+  const loadedImages = [];
+  CONFIG.iconPaths.forEach(path => {
+    const img = new Image();
+    img.src = path;
+    img.isReady = false;
+    img.onload = () => { img.isReady = true; };
+    img.onerror = () => { img.hasError = true; };
+    loadedImages.push(img);
+  });
+
+  
+  class FlungIcon {
+    constructor(x, y, vx, vy) {
+      this.size = CONFIG.iconSize;
+      this.radius = this.size / 2;
+      this.x = x;
+      this.y = y;
+      this.vx = vx;
+      this.vy = vy;
+      this.angle = Math.random() * Math.PI * 2;
+      this.vAngle = (Math.random() - 0.5) * 0.15; 
+      this.alpha = 1;
+      this.bounces = 0;
+      this.maxBounces = 10; 
+      
+      
+      this.img = loadedImages[Math.floor(Math.random() * loadedImages.length)];
+    }
+
+    update() {
+      
+      this.vy += CONFIG.gravity;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.angle += this.vAngle;
+
+      
+      if (this.y + this.radius > height) {
+        this.y = height - this.radius;
+        this.vy *= -CONFIG.bounce;
+        this.vx *= 0.95; 
+        this.vAngle *= 0.8;
+        this.bounces++;
+      }
+
+      
+      if (this.y - this.radius < 0) {
+        this.y = this.radius;
+        this.vy *= -CONFIG.bounce;
+      }
+
+      
+      if (this.x + this.radius > width) {
+        this.x = width - this.radius;
+        this.vx *= -CONFIG.bounce;
+        this.vAngle = -this.vAngle;
+        this.bounces++;
+      }
+
+      
+      if (this.x - this.radius < 0) {
+        this.x = this.radius;
+        this.vx *= -CONFIG.bounce;
+        this.vAngle = -this.vAngle;
+        this.bounces++;
+      }
+
+      
+      if (this.bounces >= this.maxBounces) {
+        this.alpha -= 0.02;
+      }
+    }
+
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, this.alpha);
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+
+      if (this.img && this.img.isReady) {
+        ctx.drawImage(this.img, -this.radius, -this.radius, this.size, this.size);
+      }
+
+      ctx.restore();
+    }
+  }
+
+  let icons = [];
+
+  
+  function spawnRandomFling() {
+    if (icons.length >= CONFIG.maxIcons) return;
+
+    
+    const side = Math.floor(Math.random() * 3);
+    let x, y, vx, vy;
+
+    if (side === 0) { 
+      x = Math.random() * width;
+      y = height + CONFIG.iconSize;
+      vx = (Math.random() - 0.5) * 16;
+      vy = -(Math.random() * 12 + 12); 
+    } else if (side === 1) { 
+      x = -CONFIG.iconSize;
+      y = Math.random() * (height * 0.7);
+      vx = Math.random() * 14 + 8;
+      vy = -(Math.random() * 10 + 4);
+    } else { 
+      x = width + CONFIG.iconSize;
+      y = Math.random() * (height * 0.7);
+      vx = -(Math.random() * 14 + 8);
+      vy = -(Math.random() * 10 + 4);
+    }
+
+    icons.push(new FlungIcon(x, y, vx, vy));
+  }
+
+  setInterval(spawnRandomFling, CONFIG.spawnInterval);
+
+  
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+
+    for (let i = icons.length - 1; i >= 0; i--) {
+      icons[i].update();
+      icons[i].draw();
+
+      
+      if (icons[i].alpha <= 0) {
+        icons.splice(i, 1);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  
+  spawnRandomFling();
+  animate();
+</script>
+</body>
+</html>
