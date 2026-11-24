@@ -1,6 +1,6 @@
 (() => {
 "use strict";
-const CATALOG_URL="/browser/sites.json";
+const CATALOG_URL="/browser/sites.json?cb=" + Date.now();
 const $=id=>document.getElementById(id);
 const address=$("address"),frame=$("pageFrame"),newTabView=$("newTab"),errorPage=$("errorPage");
 let sites={},tabs=[],activeTab=0,deferredInstall=null,toastTimer;
