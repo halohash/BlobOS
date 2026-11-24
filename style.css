@@ -87,12 +87,14 @@ button {
     justify-content: center;
     gap: 14px;
     transition: opacity var(--ics-medium-anim) var(--ics-decelerate-cubic);
+    cursor: none;
 }
 
 .boot-screen.done {
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
+    cursor: default;
 }
 
 .boot-mark {
