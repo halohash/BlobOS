@@ -694,107 +694,117 @@
     resetIdleTimer();
   }
 
-  function startDaydream(id) {
-    if (locked || setting("screensaver", "true") === "false") {
-      return;
+  
+function startDaydream(id) {
+    if (
+        locked ||
+        setting("screensaver_enabled", "true") === "false"
+    ) {
+        return;
     }
 
-    const config = screensaverConfig.find(item => item.id === id) ||
-      screensaverConfig[0];
+    // Save a newly selected screensaver.
+    if (id) {
+        const selected = screensaverConfig.find(
+            item => item.id === id
+        );
+
+        if (!selected) {
+            showToast("Screensaver not found");
+            return;
+        }
+
+        localStorage.setItem("blobos_screensaver_id", id);
+    }
+
+    // Use the saved screensaver, not automatically the first one.
+    const savedId = setting("screensaver_id", "");
+    const config =
+        screensaverConfig.find(item => item.id === savedId) ||
+        screensaverConfig[0];
 
     if (!config) return;
 
     closeShade();
-
     screensaverActive = true;
 
     stopDaydreamAnimation();
 
     const content = $("daydreamContent");
-
     content.replaceChildren();
 
     daydream.classList.add("active");
     daydream.setAttribute("aria-hidden", "false");
 
     if (config.type === "clock") {
-      const clock = document.createElement("div");
-      clock.className = "daydream-clock";
+        const clock = document.createElement("div");
+        clock.className = "daydream-clock";
+        content.append(clock);
 
-      content.append(clock);
+        function update() {
+            clock.textContent = new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: setting("clock24", "false") !== "true"
+            });
+        }
 
-      function update() {
-        clock.textContent = new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: setting("clock24", "false") !== "true"
-        });
-      }
-
-      update();
-
-      daydreamTimer = setInterval(update, 1000);
+        update();
+        daydreamTimer = setInterval(update, 1000);
     }
 
     if (config.type === "bubbles") {
-      createDaydreamBubbles(content);
+        createDaydreamBubbles(content);
     }
 
     if (config.type === "slideshow") {
-      const image = document.createElement("img");
-      image.className = "daydream-photo";
+        const image = document.createElement("img");
+        image.className = "daydream-photo";
+        content.append(image);
 
-      content.append(image);
+        const images = Array.isArray(config.images)
+            ? config.images
+            : [];
 
-      const images = Array.isArray(config.images)
-        ? config.images
-        : [];
+        let index = 0;
 
-      let index = 0;
+        if (images.length) {
+            function show() {
+                image.src = images[index % images.length];
+                index++;
+            }
 
-      if (images.length) {
-        function show() {
-          image.src = images[index % images.length];
-          index++;
+            show();
+            daydreamTimer = setInterval(
+                show,
+                Math.max(2000, Number(config.interval) || 8000)
+            );
         }
-
-        show();
-
-        daydreamTimer = setInterval(
-          show,
-          Math.max(2000, Number(config.interval) || 8000)
-        );
-      }
     }
 
     if (config.type === "html") {
-      const frame = document.createElement("iframe");
-
-      frame.src = config.src;
-      frame.title = config.name || "Daydream";
-
-      frame.setAttribute(
-        "sandbox",
-        "allow-scripts allow-same-origin"
-      );
-
-      content.append(frame);
+        const frame = document.createElement("iframe");
+        frame.src = config.src;
+        frame.title = config.name || "Daydream";
+        frame.setAttribute(
+            "sandbox",
+            "allow-scripts allow-same-origin"
+        );
+        content.append(frame);
     }
 
     if (config.type === "video") {
-      const video = document.createElement("video");
-
-      video.src = config.src;
-      video.autoplay = true;
-      video.loop = true;
-      video.muted = true;
-      video.playsInline = true;
-
-      content.append(video);
-
-      video.play().catch(() => {});
+        const video = document.createElement("video");
+        video.src = config.src;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        content.append(video);
+        video.play().catch(() => {});
     }
-  }
+}
+
 
   function createDaydreamBubbles(content) {
     const canvas = document.createElement("canvas");
@@ -870,28 +880,35 @@
 
   /* IDLE DETECTION */
 
-  function resetIdleTimer() {
+  
+function resetIdleTimer() {
     clearTimeout(idleTimer);
 
     if (
-      locked ||
-      screensaverActive ||
-      setting("screensaver", "true") === "false"
+        locked ||
+        screensaverActive ||
+        setting("screensaver_enabled", "true") === "false"
     ) {
-      return;
+        return;
     }
 
     const delay = Number(
-      setting(
-        "screensaver_delay",
-        String(DEFAULT_SCREENSAVER_DELAY)
-      )
+        setting(
+            "screensaver_delay",
+            String(DEFAULT_SCREENSAVER_DELAY)
+        )
     );
 
+    // Zero means Never.
+    if (!Number.isFinite(delay) || delay <= 0) {
+        return;
+    }
+
     idleTimer = setTimeout(() => {
-      startDaydream();
+        startDaydream();
     }, Math.max(15000, delay));
-  }
+}
+
 
   function handleActivity() {
     if (screensaverActive) {
@@ -914,35 +931,36 @@
     });
   });
 
-  window.blobosSetScreensaverDelay = milliseconds => {
+  
+window.blobosSetScreensaverDelay = milliseconds => {
     const value = Number(milliseconds);
 
-    if (!Number.isFinite(value) || value < 15000) {
-      return false;
+    if (!Number.isFinite(value) || value < 0) {
+        return false;
     }
 
     localStorage.setItem(
-      "blobos_screensaver_delay",
-      String(value)
+        "blobos_screensaver_delay",
+        String(value)
     );
 
     resetIdleTimer();
-
     return true;
-  };
+};
 
-  window.blobosSetScreensaverEnabled = enabled => {
+window.blobosSetScreensaverEnabled = enabled => {
     localStorage.setItem(
-      "blobos_screensaver",
-      String(Boolean(enabled))
+        "blobos_screensaver_enabled",
+        String(Boolean(enabled))
     );
 
     if (!enabled && screensaverActive) {
-      exitDaydream();
+        exitDaydream();
     }
 
     resetIdleTimer();
-  };
+};
+
 
   /* SWIPE GESTURES */
 

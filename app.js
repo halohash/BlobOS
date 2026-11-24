@@ -682,67 +682,68 @@
 
             content.append(saverDescription);
 
-            const screensavers = window.blobosGetScreensavers
-                ? window.blobosGetScreensavers()
-                : [];
+            
+const screensavers = window.blobosGetScreensavers
+    ? window.blobosGetScreensavers()
+    : [];
 
-            if (screensavers.length) {
-                screensavers.forEach(saver => {
-                    const button = document.createElement("button");
+const selectedSaver = localStorage.getItem("blobos_screensaver_id") || "";
 
-                    button.type = "button";
-                    button.className = "setting-row";
+if (screensavers.length) {
+    screensavers.forEach(saver => {
+        const button = document.createElement("button");
 
-                    button.style.cssText =
-                        "width:100%;text-align:left;color:inherit;cursor:pointer;background:transparent;border:0;border-bottom:1px solid #263746;padding:16px;";
+        button.type = "button";
+        button.className = "setting-row";
+        button.style.cssText =
+            "width:100%;text-align:left;color:inherit;cursor:pointer;background:transparent;border:0;border-bottom:1px solid #263746;padding:16px;";
 
-                    const name = document.createElement("strong");
-                    name.textContent = saver.name || saver.id;
+        const name = document.createElement("strong");
+        name.textContent =
+            (saver.name || saver.id) +
+            (saver.id === selectedSaver ? " ✓" : "");
 
-                    const description = document.createElement("small");
-                    description.textContent =
-                        "Screensaver · " + saver.type;
+        const description = document.createElement("small");
+        description.textContent = "Screensaver · " + saver.type;
 
-                    const info = document.createElement("div");
-                    info.append(name, description);
+        const info = document.createElement("div");
+        info.append(name, description);
+        button.append(info);
 
-                    button.append(info);
-
-                    button.addEventListener("click", () => {
-                        if (window.blobosStartDaydream) {
-                            window.blobosStartDaydream(saver.id);
-                        } else {
-                            showToast("Screensavers are not ready yet");
-                        }
-                    });
-
-                    content.append(button);
-                });
+        button.addEventListener("click", () => {
+            if (window.blobosStartDaydream) {
+                window.blobosStartDaydream(saver.id);
             } else {
-                const empty = document.createElement("div");
-
-                empty.className = "settings-about";
-                empty.textContent =
-                    "No screensavers found. Check screensavers.json.";
-
-                content.append(empty);
+                showToast("Screensavers are not ready yet");
             }
+        });
 
-            const previewButton = makeButton(
-                "Start screensaver",
-                () => {
-                    if (window.blobosStartDaydream) {
-                        window.blobosStartDaydream();
-                    } else {
-                        showToast("Screensavers are not ready yet");
-                    }
-                }
-            );
+        content.append(button);
+    });
+} else {
+    const empty = document.createElement("div");
+    empty.className = "settings-about";
+    empty.textContent =
+        "No screensavers found. Check screensavers.json.";
+    content.append(empty);
+}
 
-            previewButton.style.cssText =
-                "margin-top:18px;padding:12px 20px;background:#33b5e5;color:#fff;border:0;cursor:pointer;";
+const previewButton = makeButton(
+    "Preview selected screensaver",
+    () => {
+        if (window.blobosStartDaydream) {
+            window.blobosStartDaydream();
+        } else {
+            showToast("Screensavers are not ready yet");
+        }
+    }
+);
 
-            content.append(previewButton);
+previewButton.style.cssText =
+    "margin-top:18px;padding:12px 20px;background:#33b5e5;color:#fff;border:0;cursor:pointer;";
+
+content.append(previewButton);
+
 
             // Screensaver timeout
             const timeoutTitle = document.createElement("h3");
