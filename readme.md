@@ -214,6 +214,33 @@ Screensavers can be previewed from:
 
 The automatic screensaver activates after the configured idle timeout.
 
+## Dialogs
+
+Dialogs have been added since Nov 24, 2026.
+
+```js
+// confirmation dialog
+async function promptReboot() {
+  const choice = await holoDialog({
+    title: 'Phone options',
+    message: 'Your phone will shut down.',
+    negativeText: 'Cancel',
+    positiveText: 'OK'
+  });
+
+  if (choice === 'positive') {
+    console.log('Shutting down...');
+  }
+}
+
+// simple alert
+holoDialog({
+  title: 'Force close',
+  message: 'Unfortunately, System UI has stopped.',
+  positiveText: 'OK'
+});
+```
+
 ## Customization
 
 You can customize BlobOS by editing:

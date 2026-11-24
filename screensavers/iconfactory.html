@@ -47,10 +47,10 @@
       '/icons/recent.png',
       '/icons/headphones.png'
     ],
-    maxIcons: 2000,          
-    spawnInterval: 250,    
+    maxIcons: 5,          
+    spawnInterval: 400,    
     gravity: 0,         
-    bounce: 0.75,          
+    bounce: 0.50,          
     iconSize: 64           
   };
 
@@ -86,7 +86,7 @@
       this.vAngle = (Math.random() - 0.5) * 0.15; 
       this.alpha = 1;
       this.bounces = 0;
-      this.maxBounces = 10; 
+      this.maxBounces = 3; 
       
       
       this.img = loadedImages[Math.floor(Math.random() * loadedImages.length)];
