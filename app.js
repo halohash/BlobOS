@@ -234,6 +234,75 @@
         }
     }
 
+function getRepositories() {
+    try {
+        const repos = JSON.parse(
+            localStorage.getItem("blobos_repositories") || "[]"
+        );
+        return Array.isArray(repos) ? repos : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+async function loadRepositoryApps() {
+    const repositories = getRepositories();
+
+    for (const url of repositories) {
+        try {
+            const response = await fetch(url, {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            const repositoryApps = await response.json();
+
+            if (
+                !repositoryApps ||
+                typeof repositoryApps !== "object" ||
+                Array.isArray(repositoryApps)
+            ) {
+                throw new Error("Invalid apps.json format");
+            }
+
+            Object.entries(repositoryApps).forEach(([id, app]) => {
+                // Local apps and previously loaded repositories take priority.
+                if (!apps[id] && app && typeof app === "object") {
+                    apps[id] = app;
+                }
+            });
+
+            console.log("BlobOS: Loaded repository", url);
+        } catch (error) {
+            console.warn(
+                "BlobOS: Repository failed to load:",
+                url,
+                error
+            );
+        }
+    }
+}
+
+async function refreshAppRepositories() {
+    const localApps = await loadJSON("./apps.json", {});
+
+    apps = { ...localApps };
+
+    await loadRepositoryApps();
+
+    apps = {
+        ...apps,
+        ...builtins
+    };
+
+    renderApps();
+    renderShortcuts();
+    renderRecent();
+}
+
     async function launchApp(id) {
         const app = apps[id];
         if (!app) return;
@@ -330,11 +399,12 @@
         menu.className = "settings-nav";
 
         [
-            ["network", "wifi", "Wireless & networks"],
-            ["display", "display_settings", "Display"],
-            ["wallpaper", "wallpaper", "Wallpaper"],
-            ["system", "info", "System"]
-        ].forEach(([key, icon, label]) => {
+    ["network", "wifi", "Wireless & networks"],
+    ["display", "display_settings", "Display"],
+    ["wallpaper", "wallpaper", "Wallpaper"],
+    ["repositories", "cloud_download", "App repositories"],
+    ["system", "info", "System"]
+].forEach(([key, icon, label]) => {
             const button = document.createElement("button");
 
             button.className = key === active ? "active" : "";
@@ -420,11 +490,12 @@
         heading.className = "settings-heading";
 
         heading.textContent = ({
-            network: "Wireless & networks",
-            display: "Display",
-            wallpaper: "Wallpaper",
-            system: "System"
-        })[section] || "Settings";
+    network: "Wireless & networks",
+    display: "Display",
+    wallpaper: "Wallpaper",
+    repositories: "App repositories",
+    system: "System"
+})[section] || "Settings";
 
         main.append(heading);
 
@@ -648,6 +719,143 @@
                     )
                 )
             );
+        }
+
+        // APP REPOSITORIES
+        else if (section === "repositories") {
+            const title = document.createElement("h3");
+            title.textContent = "App repositories";
+            content.append(title);
+
+            const description = document.createElement("div");
+            description.className = "settings-about";
+            description.textContent =
+                "Add repositories containing apps.json files. Apps from these repositories will appear in the app drawer.";
+            content.append(description);
+
+            const input = document.createElement("input");
+            input.type = "url";
+            input.placeholder = "https://example.com/apps.json";
+            input.style.cssText =
+                "width:100%;padding:12px;margin:16px 0;background:#17232d;color:#fff;border:1px solid #405566;";
+
+            const addButton = makeButton("Add repository", async () => {
+                const url = input.value.trim();
+
+                if (!url) {
+                    showToast("Enter a repository URL");
+                    return;
+                }
+
+                try {
+                    const parsed = new URL(url);
+
+                    if (
+                        parsed.protocol !== "https:" &&
+                        parsed.protocol !== "http:"
+                    ) {
+                        throw new Error("Invalid protocol");
+                    }
+
+                    const response = await fetch(url, {
+                        cache: "no-store"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("HTTP " + response.status);
+                    }
+
+                    const data = await response.json();
+
+                    if (
+                        !data ||
+                        typeof data !== "object" ||
+                        Array.isArray(data)
+                    ) {
+                        throw new Error("Invalid repository format");
+                    }
+
+                    const repositories = getRepositories();
+
+                    if (repositories.includes(url)) {
+                        showToast("Repository already added");
+                        return;
+                    }
+
+                    repositories.push(url);
+
+                    localStorage.setItem(
+                        "blobos_repositories",
+                        JSON.stringify(repositories)
+                    );
+
+                    await refreshAppRepositories();
+
+                    showToast("Repository added");
+                    renderSettings("repositories");
+                } catch (error) {
+                    console.error(error);
+                    showToast("Could not add repository");
+                }
+            });
+
+            content.append(input, addButton);
+
+            const listTitle = document.createElement("h3");
+            listTitle.textContent = "Installed repositories";
+            listTitle.style.marginTop = "28px";
+            content.append(listTitle);
+
+            const repositories = getRepositories();
+
+            if (!repositories.length) {
+                const empty = document.createElement("div");
+                empty.className = "settings-about";
+                empty.textContent = "No repositories added.";
+                content.append(empty);
+            }
+
+            repositories.forEach((url, index) => {
+                const row = document.createElement("div");
+                row.className = "setting-row";
+                row.style.cssText =
+                    "display:flex;align-items:center;gap:12px;";
+
+                const label = document.createElement("div");
+                label.style.cssText =
+                    "flex:1;min-width:0;overflow-wrap:anywhere;";
+                label.textContent = url;
+
+                const remove = makeButton("Remove", async () => {
+                    const updated = getRepositories();
+                    updated.splice(index, 1);
+
+                    localStorage.setItem(
+                        "blobos_repositories",
+                        JSON.stringify(updated)
+                    );
+
+                    await refreshAppRepositories();
+
+                    showToast("Repository removed");
+                    renderSettings("repositories");
+                });
+
+                row.append(label, remove);
+                content.append(row);
+            });
+
+            const refreshButton = makeButton(
+                "Refresh repositories",
+                async () => {
+                    await refreshAppRepositories();
+                    showToast("Repositories refreshed");
+                    renderSettings("repositories");
+                }
+            );
+
+            refreshButton.style.marginTop = "20px";
+            content.append(refreshButton);
         }
 
         // SYSTEM
@@ -989,11 +1197,14 @@ content.append(previewButton);
     // Startup
     async function start() {
         const loaded = await loadJSON("./apps.json", {});
+apps = { ...loaded };
 
-        apps = {
-            ...loaded,
-            ...builtins
-        };
+await loadRepositoryApps();
+
+apps = {
+    ...apps,
+    ...builtins
+};
 
         wallpapers = await loadJSON(
             "./wallpapers.json",
