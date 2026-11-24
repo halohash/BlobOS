@@ -252,4 +252,4 @@ You can customize BlobOS by editing:
 
 ## License
 
-Add your preferred license before distributing or modifying this project. If no license is provided, standard copyright restrictions apply.
+Roboto font by Google Fonts (Apache 2.0), Material Icons by Google (Apache 2.0), and BlobOS icons and assets by their respective creators.

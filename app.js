@@ -21,12 +21,12 @@
     const builtins = {
         "com.blobos.settings": {
             name: "Settings",
-            icon: "https://trollblob.pages.dev/icons/dial.png",
+            icon: "/icons/dial.png",
             builtin: "settings"
         },
         "com.blobos.gallery": {
             name: "Gallery",
-            icon: "https://trollblob.pages.dev/icons/gallery.png",
+            icon: "/icons/gallery.png",
             builtin: "gallery"
         }
     };

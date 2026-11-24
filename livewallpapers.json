@@ -4,23 +4,5 @@
     "id": "bubbles",
     "name": "Bubbles",
     "type": "bubbles"
-  },
-  {
-    "id": "blue",
-    "name": "Blue",
-    "type": "image",
-    "src": "https://trollblob.pages.dev/wallpapers/blue.jpg"
-  },
-  {
-    "id": "video",
-    "name": "Video wallpaper",
-    "type": "video",
-    "src": "wallpapers/live.mp4"
-  },
-  {
-    "id": "custom",
-    "name": "Custom HTML wallpaper",
-    "type": "html",
-    "src": "wallpapers/live.html"
   }
 ]

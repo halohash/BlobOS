@@ -5,13 +5,13 @@
   "description": "A lightweight HTML5 OS.",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "any",
   "background_color": "#33B5E5",
   "theme_color": "#33B5E5",
   "icons": [
     {
-      "src": "https://trollblob.pages.dev/icons/system.png",
+      "src": "/icons/system.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

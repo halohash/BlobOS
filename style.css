@@ -1063,15 +1063,15 @@ input[type="checkbox"] {
 /* NAV BUTTON ICONS */
 
 #backButton {
-    background: url("https://trollblob.pages.dev/icons/back.png") center / 100% 100% no-repeat;
+    background: url("/icons/back.png") center / 100% 100% no-repeat;
 }
 
 #homeButton {
-    background: url("https://trollblob.pages.dev/icons/home.png") center / 100% 100% no-repeat;
+    background: url("/icons/home.png") center / 100% 100% no-repeat;
 }
 
 #recentButton {
-    background: url("https://trollblob.pages.dev/icons/recent.png") center / 100% 100% no-repeat;
+    background: url("/icons/recent.png") center / 100% 100% no-repeat;
 }
 
 /* RESPONSIVE */
@@ -1186,7 +1186,7 @@ input[type="checkbox"] {
 }
 
     .app-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(13, minmax(0, 1fr));
         padding: 20px 24px;
     }
 

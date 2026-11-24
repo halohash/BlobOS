@@ -1,11 +1,11 @@
 {
   "com.blobmeld.blobbrowse": {
-    "icon": "https://trollblob.pages.dev/icons/browser.png",
+    "icon": "/icons/browser.png",
     "name": "Browser",
-    "iframe": "https://trollblob.pages.dev/browser"
+    "iframe": "/browser"
   },
   "com.riski.aisr": {
-    "icon": "https://trollblob.pages.dev/icons/phone.png",
+    "icon": "/icons/phone.png",
     "name": "AI Sponge Rehydrated",
     "iframe": "https://www.youtube.com/embed/live_stream?channel=UCsKWE9frgzdA5hHGGbA9pDQ"
   }
