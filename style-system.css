@@ -108,7 +108,7 @@
 
 .quick-settings {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(13, minmax(0, 1fr));
   gap: 9px;
 }
 
@@ -462,6 +462,7 @@
 
   .quick-settings {
     gap: 6px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .quick-tile {
