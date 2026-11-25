@@ -17,6 +17,7 @@ window.errorMessage = function(){holoDialog({
     const appGrid = $("appGrid");
     const homeShortcuts = $("homeShortcuts");
     const recentPanel = $("recentPanel");
+    const loadedServices = new Set();
 
     let apps = {};
     let wallpapers = [];
@@ -159,6 +160,7 @@ function closeApp() {
     }
 
     function addRecent(id) {
+        if (!apps[id] || apps[id].script) return;
         recentApps = [
             id,
             ...recentApps.filter(x => x !== id)
@@ -229,6 +231,7 @@ function closeApp() {
         const query = filter.toLowerCase();
 
         Object.entries(apps).forEach(([id, app]) => {
+          if (app.script) return;
             if (
                 query &&
                 !(
@@ -275,7 +278,7 @@ function closeApp() {
             "com.blobos.gallery"
         ].forEach(id => {
             const app = apps[id];
-            if (!app) return;
+            if (!app || app.script) return;
 
             const button = document.createElement("button");
             button.className = "shortcut";
@@ -320,6 +323,33 @@ function getRepositories() {
     }
 }
 
+function loadServices() {
+    Object.entries(apps).forEach(([id, service]) => {
+        if (!service.script) return;
+        if (loadedServices.has(id)) return;
+
+        const script = document.createElement("script");
+
+        script.src = service.script;
+        script.dataset.service = id;
+        script.async = true;
+
+        script.onload = () => {
+            loadedServices.add(id);
+            console.log("BlobOS: Service started:", id);
+        };
+
+        script.onerror = () => {
+            console.error(
+                "BlobOS: Failed to load service:",
+                id,
+                service.script
+            );
+        };
+
+        document.head.appendChild(script);
+    });
+}
 async function loadRepositoryApps() {
     const repositories = getRepositories();
 
@@ -376,6 +406,7 @@ async function refreshAppRepositories() {
     renderApps();
     renderShortcuts();
     renderRecent();
+    loadServices();
 }
 
 async function launchApp(id) {
@@ -816,7 +847,7 @@ async function launchApp(id) {
             const description = document.createElement("div");
             description.className = "settings-about";
             description.textContent =
-                "Add repositories containing apps.json files. Apps from these repositories will appear in the app drawer.";
+                "Add repositories containing apps.json files. Apps from these repositories will appear in the app drawer. Beware of apps that are harmful.";
             content.append(description);
 
             const input = document.createElement("input");
@@ -1309,7 +1340,7 @@ apps = {
         renderApps();
         renderShortcuts();
         renderRecent();
-
+        loadServices();
         applyWallpaper(
             settingState().wallpaper || wallpapers[0]
         );

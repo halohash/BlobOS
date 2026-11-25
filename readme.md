@@ -104,6 +104,11 @@ Example:
     "name": "Inline App",
     "icon": "inline.png",
     "html": "<div>Hello from BlobOS!</div>"
+  },
+  "com.example.service": {
+    "name": "Example Service",
+    "icon": "service.png",
+    "service": "https://example.com/service"
   }
 }
 ```
@@ -117,8 +122,10 @@ Supported app properties:
 | `htmlurl` | Loads an external HTML file |
 | `iframe` | Loads a website in an iframe |
 | `html` | Displays inline HTML |
+| `service` | an app that runs on boot and is not seen in the launcher or app tray. |
 
-BlobOS includes built-in Settings and Gallery apps.
+
+BlobOS includes built-in apps.
 
 ### Static Wallpapers
 
