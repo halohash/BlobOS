@@ -39,5 +39,11 @@
     "name": "Rolling Dial",
     "type": "html",
     "src": "/screensavers/rollingdial.html"
+  },
+  {
+    "id": "teal_dreams",
+    "name": "Teal Dreams",
+    "type": "html",
+    "src": "/screensavers/tealdreams.html"
   }
 ]
