@@ -8,6 +8,10 @@
   --blobos-panel-light: #243744;
 }
 
+body>* {
+  cursor: url("/assets/mouse.svg") 5 3, auto;
+}
+
 .no-animations *,
 .no-animations *::before,
 .no-animations *::after {
