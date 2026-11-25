@@ -1,5 +1,7 @@
 @import url("https://hashpie.pages.dev/misc/classicroboto/style.css");
-
+#homeScreen.home-hidden {
+    display: none !important;
+}
 :root {
     --ics-decelerate-quint: cubic-bezier(0.23, 1, 0.32, 1);
     --ics-decelerate-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);

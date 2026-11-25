@@ -52,7 +52,30 @@
     const value = localStorage.getItem("blobos_" + key);
     return value === null ? fallback : value;
   }
+function setHomeScreen(enabled) {
+    enabled = enabled === true || enabled === "true";
 
+    localStorage.setItem("homeEnabled", String(enabled));
+
+    const homeScreen = $("homeScreen");
+
+    if (homeScreen) {
+        homeScreen.classList.toggle("home-hidden", !enabled);
+    }
+
+    document.documentElement.classList.toggle(
+        "home-disabled",
+        !enabled
+    );
+
+    return enabled;
+}
+
+window.blobosSetHomeScreen = setHomeScreen;
+
+window.blobosIsHomeScreenEnabled = () => {
+    return localStorage.getItem("homeEnabled") !== "false";
+};
   function animationsEnabled() {
     return setting("animations", "true") !== "false";
   }
@@ -293,12 +316,11 @@
 
     if (!(key in quickSettings)) return;
 
-    const stored = setting(
-      "quick_" + key,
-      String(quickSettings[key])
-    );
+const stored = key === "homeScreen"
+    ? (localStorage.getItem("homeEnabled") !== "false" ? "true" : "false")
+    : setting("quick_" + key, String(quickSettings[key]));
 
-    button.classList.toggle("active", stored === "true");
+button.classList.toggle("active", stored === "true");
 
     button.addEventListener("click", () => {
       const active = !button.classList.contains("active");
@@ -311,11 +333,7 @@
       );
 
       if (key === "homeScreen") {
-        localStorage.setItem("homeEnabled", String(active));
-
-        if (active) {
-          window.document.getElementById("homeScreen").style.display = "none"
-        } else {wwindow.document.getElementById("homeScreen").style.display = "flex"}
+          setHomeScreen(active);
       }
 
       if (key === "wifi") {
@@ -1100,7 +1118,9 @@ window.blobosSetScreensaverEnabled = enabled => {
       "--blobos-brightness",
       String(Math.max(30, Math.min(100, savedBrightness)) / 100)
     );
-
+setHomeScreen(
+    localStorage.getItem("homeEnabled") !== "false"
+);
     applyAnimationState();
 
     updateSystemClock();
