@@ -64,8 +64,8 @@ canvas {
     // World settings
     const DIAL_SCREEN_POSITION = 0.28;
     const OBSTACLE_DISTANCE_MIN = 280;
-    const OBSTACLE_DISTANCE_MAX = 540;
-    const GRID_SIZE = 110;
+    const OBSTACLE_DISTANCE_MAX = 1280;
+    const GRID_SIZE = 220;
 
     let width = 0;
     let height = 0;
@@ -466,7 +466,7 @@ canvas {
             ctx.arc(
                 p.x,
                 p.y,
-                p.size * p.life,
+                Math.abs(p.size * p.life),
                 0,
                 Math.PI * 2
             );
