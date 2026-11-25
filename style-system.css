@@ -8,7 +8,7 @@
   --blobos-panel-light: #243744;
 }
 
-body>* {
+* {
   cursor: url("/assets/mouse.svg") 5 3, auto;
 }
 
