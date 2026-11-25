@@ -252,7 +252,7 @@ window.blobosIsHomeScreenEnabled = () => {
   /* NOTIFICATION SHADE */
 
   function openShade() {
-    if (locked || screensaverActive) return;
+    if (locked) return;
 
     closeRecentPanel();
 
@@ -632,7 +632,7 @@ button.classList.toggle("active", stored === "true");
 
       wallpaperFrame = requestAnimationFrame(draw);
 
-      if (document.hidden || locked || screensaverActive) return;
+      if (document.hidden || locked) return;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1166,7 +1166,7 @@ async function factoryReset() {
   if (choice === 'positive') {
 holoDialog({
   title: 'Please Wait...',
-  message: 'Shutting Down',
+  message: 'Shutting Down...',
   positiveText: 'OK'
 });
       localStorage.clear()
