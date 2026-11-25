@@ -10,5 +10,17 @@
     "name": "Colors (Screensaver Port)",
     "type": "html",
     "src": "screensavers/colors.html"
+  },
+  {
+    "id": "NOISEFIELD",
+    "name": "NoiseField",
+    "type": "html",
+    "src": "https://halohash.github.io/wallpapers/noisefield.html"
+  },
+  {
+    "id": "PHASEBEAM",
+    "name": "Phase Beam",
+    "type": "html",
+    "src": "https://halohash.github.io/wallpapers/phasebeam.html"
   }
 ]
