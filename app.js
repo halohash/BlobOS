@@ -1,10 +1,12 @@
+(() => {
+    "use strict";
 window.errorMessage = function(){holoDialog({
   title: 'Oops!',
   message: 'Oops! That didn\'t work. Give it another shot in a moment.',
   positiveText: 'OK'
 });}
-(() => {
-    "use strict";
+
+    
 
     const $ = id => document.getElementById(id);
 
@@ -342,7 +344,7 @@ async function loadRepositoryApps() {
             }
 
             Object.entries(repositoryApps).forEach(([id, app]) => {
-                // Local apps and previously loaded repositories take priority.
+                
                 if (!apps[id] && app && typeof app === "object") {
                     apps[id] = app;
                 }
@@ -588,7 +590,7 @@ async function launchApp(id) {
 
         const state = settingState();
 
-        // DISPLAY
+        
         if (section === "display") {
             const title = document.createElement("h3");
             title.textContent = "Display settings";
@@ -643,7 +645,7 @@ async function launchApp(id) {
             content.append(theme);
         }
 
-        // WALLPAPER
+        
         else if (section === "wallpaper") {
             const title = document.createElement("h3");
             title.textContent = "Home screen wallpaper";
@@ -657,7 +659,7 @@ async function launchApp(id) {
 
             content.append(desc);
 
-            // Static wallpapers
+            
             const staticTitle = document.createElement("h3");
             staticTitle.textContent = "Static wallpapers";
 
@@ -699,7 +701,7 @@ async function launchApp(id) {
 
             content.append(options);
 
-            // Live wallpapers
+            
             const liveTitle = document.createElement("h3");
             liveTitle.textContent = "Live wallpapers";
             liveTitle.style.marginTop = "28px";
@@ -775,7 +777,7 @@ async function launchApp(id) {
             content.append(clearLive);
         }
 
-        // NETWORK
+        
         else if (section === "network") {
             const title = document.createElement("h3");
             title.textContent = "Network";
@@ -805,7 +807,7 @@ async function launchApp(id) {
             );
         }
 
-        // APP REPOSITORIES
+        
         else if (section === "repositories") {
             const title = document.createElement("h3");
             title.textContent = "App repositories";
@@ -942,7 +944,7 @@ async function launchApp(id) {
             content.append(refreshButton);
         }
 
-        // SYSTEM
+        
         else {
             const title = document.createElement("h3");
             title.textContent = "About BlobOS";
@@ -960,7 +962,7 @@ async function launchApp(id) {
 
             content.append(about);
 
-            // Screensavers
+            
             const saverTitle = document.createElement("h3");
             saverTitle.textContent = "Screensavers";
             saverTitle.style.marginTop = "28px";
@@ -1046,7 +1048,7 @@ errorMessage();
     }
 );
 
-            // Screensaver timeout
+            
             const timeoutTitle = document.createElement("h3");
             timeoutTitle.textContent = "Screensaver timeout";
             timeoutTitle.style.marginTop = "28px";
@@ -1233,7 +1235,7 @@ errorMessage();
         });
     }
 
-    // Navigation
+    
     $("trayButton").addEventListener("click", openTray);
 
     document.querySelectorAll("[data-close-tray]").forEach(el => {
@@ -1287,7 +1289,7 @@ errorMessage();
         }
     });
 
-    // Startup
+    
     async function start() {
         const loaded = await loadJSON("./apps.json", {});
 apps = { ...loaded };
@@ -1312,7 +1314,7 @@ apps = {
             settingState().wallpaper || wallpapers[0]
         );
 
-        // Apply saved animation preference
+        
         document.documentElement.classList.toggle(
             "no-animations",
             localStorage.getItem("blobos_animations") === "false"
