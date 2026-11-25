@@ -81,3 +81,8 @@ window.holoDialog = function({
     if (renderedBtns.length) renderedBtns[renderedBtns.length - 1].focus();
   });
 }
+window.alert = text => holoDialog({
+  title: 'BlobOS Alert',
+  message: text,
+  positiveText: 'OK'
+});
