@@ -41,7 +41,7 @@
 
 @keyframes icsCloseEnter {
   0% {
-    opacity: 0.5;
+    opacity: 0;
     transform: scale(0.95); /* Starts slightly recessed */
   }
   100% {

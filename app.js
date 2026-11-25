@@ -5,10 +5,9 @@ window.errorMessage = function(){holoDialog({
   message: 'Oops! That didn\'t work. Give it another shot in a moment.',
   positiveText: 'OK'
 });}
-
-    
-
+    window.getClass = eclass => document.getElementsByClassName(eclass);
     const $ = id => document.getElementById(id);
+    window.$ = id => document.getElementById(id);
 
     const desktop = $("desktop");
     const tray = $("appTray");
