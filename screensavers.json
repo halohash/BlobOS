@@ -27,5 +27,11 @@
     "name": "Colors",
     "type": "html",
     "src": "/screensavers/colors.html"
+  },
+  {
+    "id": "fp",
+    "name": "Flappy Phone",
+    "type": "html",
+    "src": "/screensavers/flappyphone.html"
   }
 ]

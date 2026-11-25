@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Phone</title>
+  <style>
+    @import url("https://hashpie.pages.dev/misc/classicroboto/style.css");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #121212;
+      cursor: none;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="screensaver"></canvas>
+
+  <script>
+    const canvas = document.getElementById('screensaver');
+    const ctx = canvas.getContext('2d');
+
+    
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    
+    const phoneImg = new Image();
+    phoneImg.src = '/icons/phone.png';
+    let phoneLoaded = false;
+    phoneImg.onload = () => { phoneLoaded = true; };
+
+    const headphonesImg = new Image();
+    headphonesImg.src = '/icons/headphones.png';
+    let headphonesLoaded = false;
+    headphonesImg.onload = () => { headphonesLoaded = true; };
+
+    const backgroundImg = new Image();
+backgroundImg.src = '/icons/googlenowday.png';
+
+let backgroundLoaded = false;
+backgroundImg.onload = () => {
+  backgroundLoaded = true;
+};
+
+    const GRAVITY = 0.45;
+    const JUMP_STRENGTH = -8.5;
+    const PIPE_SPEED = 4;
+    const PIPE_WIDTH = 90;
+    const PIPE_GAP = 220;
+    const PIPE_SPAWN_DISTANCE = 420;
+
+    
+    const bird = {
+      x: 180,
+      y: canvas.height / 2,
+      width: 54,
+      height: 54,
+      velocity: 0,
+      rotation: 0
+    };
+
+    let pipes = [];
+    let score = 0;
+    let highScore = 0;
+
+    function resetGame() {
+      bird.y = canvas.height / 2;
+      bird.velocity = 0;
+      pipes = [];
+      score = 0;
+      spawnPipe(canvas.width + 100);
+    }
+
+    function spawnPipe(xPos) {
+      const minHeight = 80;
+      const maxHeight = canvas.height - PIPE_GAP - minHeight;
+      const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+      pipes.push({
+        x: xPos,
+        topHeight: topHeight,
+        bottomY: topHeight + PIPE_GAP,
+        passed: false
+      });
+    }
+
+    
+    function runAutopilot() {
+      
+      const nextPipe = pipes.find(p => p.x + PIPE_WIDTH > bird.x);
+
+      let targetY = canvas.height / 2;
+      if (nextPipe) {
+        
+        targetY = nextPipe.topHeight + (PIPE_GAP * 0.58);
+      }
+
+      
+      if (bird.y > targetY && bird.velocity >= 0) {
+        bird.velocity = JUMP_STRENGTH;
+      }
+      
+      if (bird.y + bird.height > canvas.height - 30) {
+        bird.velocity = JUMP_STRENGTH;
+      }
+    }
+
+    function update() {
+      runAutopilot();
+
+      
+      bird.velocity += GRAVITY;
+      bird.y += bird.velocity;
+
+      
+      bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, bird.velocity * 0.06));
+
+      
+      if (bird.y < 0) {
+        bird.y = 0;
+        bird.velocity = 0;
+      }
+
+      
+      if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - PIPE_SPAWN_DISTANCE) {
+        spawnPipe(canvas.width);
+      }
+
+      
+      for (let i = pipes.length - 1; i >= 0; i--) {
+        const p = pipes[i];
+        p.x -= PIPE_SPEED;
+
+        
+        if (!p.passed && p.x + PIPE_WIDTH < bird.x) {
+          p.passed = true;
+          score++;
+          if (score > highScore) highScore = score;
+        }
+
+        
+        const pad = 8;
+        const hitTop = bird.x + bird.width - pad > p.x && bird.x + pad < p.x + PIPE_WIDTH && bird.y + pad < p.topHeight;
+        const hitBottom = bird.x + bird.width - pad > p.x && bird.x + pad < p.x + PIPE_WIDTH && bird.y + bird.height - pad > p.bottomY;
+        const hitFloor = bird.y + bird.height > canvas.height;
+
+        if (hitTop || hitBottom || hitFloor) {
+          resetGame();
+          break;
+        }
+
+        
+        if (p.x + PIPE_WIDTH < 0) {
+          pipes.splice(i, 1);
+        }
+      }
+    }
+
+    
+    function drawHeadphoneColumn(x, y, width, height, flipVertical) {
+      if (height <= 0) return;
+
+      ctx.save();
+      
+      ctx.beginPath();
+      ctx.rect(x, y, width, height);
+      ctx.clip();
+
+      if (headphonesLoaded) {
+        const tileSize = width;
+        for (let drawY = y; drawY < y + height; drawY += tileSize) {
+          ctx.save();
+          if (flipVertical) {
+            ctx.translate(x + tileSize / 2, drawY + tileSize / 2);
+            ctx.scale(1, -1);
+            ctx.drawImage(headphonesImg, -tileSize / 2, -tileSize / 2, tileSize, tileSize);
+          } else {
+            ctx.drawImage(headphonesImg, x, drawY, tileSize, tileSize);
+          }
+          ctx.restore();
+        }
+      } else {
+        
+        ctx.fillStyle = '#4CAF50';
+        ctx.fillRect(x, y, width, height);
+      }
+      ctx.restore();
+    }
+
+    function draw() {
+      
+      if (backgroundLoaded) {
+  ctx.drawImage(
+    backgroundImg,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+} else {
+  ctx.fillStyle = '#121212';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 60) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 60) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+
+      
+      pipes.forEach(p => {
+        
+        drawHeadphoneColumn(p.x, 0, PIPE_WIDTH, p.topHeight, true);
+        
+        drawHeadphoneColumn(p.x, p.bottomY, PIPE_WIDTH, canvas.height - p.bottomY, false);
+      });
+
+      
+      ctx.save();
+      ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
+      ctx.rotate(bird.rotation);
+
+      if (phoneLoaded) {
+        ctx.drawImage(phoneImg, -bird.width / 2, -bird.height / 2, bird.width, bird.height);
+      } else {
+        
+        ctx.fillStyle = '#2196F3';
+        ctx.fillRect(-bird.width / 2, -bird.height / 2, bird.width, bird.height);
+      }
+      ctx.restore();
+
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.font = "600 20px \"Classic Roboto Condensed\", system-ui, sans-serif";
+      ctx.fillText(`SCORE: ${score}  |  BEST: ${highScore}`, 30, 45);
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    
+    resetGame();
+    loop();
+  </script>
+</body>
+</html>

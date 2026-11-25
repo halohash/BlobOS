@@ -22,5 +22,11 @@
     "name": "Phase Beam",
     "type": "html",
     "src": "https://halohash.github.io/wallpapers/phasebeam.html"
+  },
+  {
+    "id": "fp_dd",
+    "name": "Flappy Phone (Screensaver Port)",
+    "type": "html",
+    "src": "screensavers/flappyphone.html"
   }
 ]
