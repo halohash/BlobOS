@@ -4,5 +4,11 @@
     "id": "bubbles",
     "name": "Bubbles",
     "type": "bubbles"
+  },
+  {
+    "id": "colors_dd",
+    "name": "Colors (Screensaver Port)",
+    "type": "html",
+    "src": "screensavers/colors.html"
   }
 ]

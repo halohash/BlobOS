@@ -284,7 +284,8 @@
     wifi: true,
     airplane: false,
     sound: true,
-    rotation: true
+    rotation: true,
+    homeScreen: true,
   };
 
   document.querySelectorAll(".quick-tile").forEach(button => {
@@ -308,6 +309,14 @@
         "blobos_quick_" + key,
         String(active)
       );
+
+      if (key === "homeScreen") {
+        localStorage.setItem("homeEnabled", String(active));
+
+        if (active) {
+          window.getElementById("homeScreen").style.display = "none"
+        } else {window.getElementById("homeScreen").style.display = "flex"}
+      }
 
       if (key === "wifi") {
         localStorage.setItem("blobos_wifi", String(active));

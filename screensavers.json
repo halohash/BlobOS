@@ -21,5 +21,11 @@
     "name": "Icon Factory (Single)",
     "type": "html",
     "src": "/screensavers/singleiconfactory.html"
+  },
+  {
+    "id": "colors",
+    "name": "Colors",
+    "type": "html",
+    "src": "/screensavers/colors.html"
   }
 ]
