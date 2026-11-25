@@ -1,0 +1,486 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rolling Dial</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: linear-gradient(160deg,#5ab9ba 0 30%,#8fc04d 30% 55%,#f4b400 55% 75%,#e2574c 75%);
+    font-family: Roboto, Arial, sans-serif;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="screensaver"></canvas>
+
+<script>
+(() => {
+    const canvas = document.getElementById("screensaver");
+    const ctx = canvas.getContext("2d");
+
+    const dialImage = new Image();
+    const phoneImage = new Image();
+    const headphonesImage = new Image();
+
+    dialImage.src = "/icons/dial.png";
+    phoneImage.src = "/icons/phone.png";
+    headphonesImage.src = "/icons/headphones.png";
+
+    let width, height, groundY, horizonY;
+    let lastTime = 0;
+    let animationId;
+
+    const gravity = 0.0018;
+
+    let dial;
+    let objects;
+    let particles;
+    let state;
+    let restartTimer = 0;
+    let elapsed = 0;
+
+    function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        horizonY = height * 0.47;
+        groundY = height * 0.82;
+
+        if (dial) {
+            dial.y = Math.min(dial.y, groundY - dial.radius);
+        }
+    }
+
+    window.addEventListener("resize", resize);
+
+    function reset() {
+        dial = {
+            x: -100,
+            y: groundY - 38,
+            radius: 38,
+            vx: width * 0.00035,
+            vy: 0,
+            rotation: 0,
+            squash: 1,
+            stretch: 1,
+            onGround: true,
+            jumpCooldown: 0
+        };
+
+        objects = [
+            {
+                type: "phone",
+                x: width * 0.42,
+                y: groundY - 25,
+                width: 53,
+                height: 53,
+                squashed: false,
+                squash: 1
+            },
+            {
+                type: "headphones",
+                x: width * 0.76,
+                y: groundY - 30,
+                width: 65,
+                height: 65
+            }
+        ];
+
+        particles = [];
+        state = "running";
+        elapsed = 0;
+        restartTimer = 0;
+    }
+
+    function projectY(y) {
+        return horizonY + (y - horizonY) * 1.3;
+    }
+
+    function drawFloor() {
+        const gradient = ctx.createLinearGradient(
+            0, horizonY, 0, height
+        );
+
+        gradient.addColorStop(0, "rgba(255,255,255,0.03)");
+        gradient.addColorStop(1, "rgba(0,0,0,0.25)");
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(0, horizonY);
+        ctx.lineTo(width, horizonY);
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.closePath();
+        ctx.fill();
+
+        // Holo floor grid
+        ctx.save();
+
+        ctx.strokeStyle = "rgba(255,255,255,0.24)";
+        ctx.lineWidth = 1;
+
+        const vanishingX = width / 2;
+
+        for (let i = -12; i <= 12; i++) {
+            const bottomX = vanishingX + i * width * 0.105;
+
+            ctx.beginPath();
+            ctx.moveTo(vanishingX, horizonY);
+            ctx.lineTo(bottomX, height);
+            ctx.stroke();
+        }
+
+        const spacing = 22;
+
+        for (let i = 0; i < 18; i++) {
+            const t = i / 18;
+            const y = horizonY + (t * t) * (height - horizonY);
+
+            ctx.globalAlpha = 0.12 + t * 0.25;
+
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+
+        // Horizon glow
+        const glow = ctx.createLinearGradient(
+            0, horizonY - 15, 0, horizonY + 30
+        );
+
+        glow.addColorStop(0, "rgba(255,255,255,0)");
+        glow.addColorStop(0.5, "rgba(255,255,255,0.3)");
+        glow.addColorStop(1, "rgba(255,255,255,0)");
+
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, horizonY - 15, width, 45);
+    }
+
+    function drawShadow(x, y, radius, opacity = 0.3) {
+        ctx.save();
+
+        ctx.globalAlpha = opacity;
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.ellipse(
+            x,
+            y,
+            radius * 1.4,
+            radius * 0.28,
+            0, 0, Math.PI * 2
+        );
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function drawImage(image, x, y, w, h) {
+        if (!image.complete || !image.naturalWidth) return;
+
+        ctx.drawImage(
+            image,
+            x - w / 2,
+            y - h / 2,
+            w,
+            h
+        );
+    }
+
+    function drawObjects() {
+        for (const obj of objects) {
+            if (obj.type === "phone") {
+                if (obj.squashed) continue;
+
+                drawShadow(obj.x, obj.y + obj.height / 2, 24);
+
+                ctx.save();
+                ctx.translate(obj.x, obj.y);
+                ctx.scale(1, obj.squash);
+                drawImage(
+                    phoneImage,
+                    0,
+                    0,
+                    obj.width,
+                    obj.height
+                );
+                ctx.restore();
+            }
+
+            if (obj.type === "headphones") {
+                drawShadow(obj.x, obj.y + obj.height / 2, 25);
+
+                drawImage(
+                    headphonesImage,
+                    obj.x,
+                    obj.y,
+                    obj.width,
+                    obj.height
+                );
+            }
+        }
+    }
+
+    function drawDial() {
+        drawShadow(
+            dial.x,
+            groundY - 3,
+            dial.radius,
+            dial.onGround ? 0.35 : 0.15
+        );
+
+        if (!dialImage.complete || !dialImage.naturalWidth) {
+            return;
+        }
+
+        ctx.save();
+
+        ctx.translate(dial.x, dial.y);
+
+        ctx.rotate(dial.rotation);
+
+        ctx.scale(dial.squash, dial.stretch);
+
+        ctx.drawImage(
+            dialImage,
+            -dial.radius,
+            -dial.radius,
+            dial.radius * 2,
+            dial.radius * 2
+        );
+
+        ctx.restore();
+    }
+
+    function explode(x, y) {
+        state = "exploding";
+
+        for (let i = 0; i < 55; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 9;
+
+            particles.push({
+                x,
+                y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: 3 + Math.random() * 8,
+                life: 1,
+                color: [
+                    "#5ab9ba",
+                    "#8fc04d",
+                    "#f4b400",
+                    "#e2574c",
+                    "#ffffff"
+                ][Math.floor(Math.random() * 5)]
+            });
+        }
+    }
+
+    function drawParticles(dt) {
+        for (const p of particles) {
+            p.x += p.vx * dt * 0.06;
+            p.y += p.vy * dt * 0.06;
+
+            p.vy += 0.0005 * dt;
+            p.life -= dt * 0.001;
+
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.fillStyle = p.color;
+
+            ctx.beginPath();
+            ctx.arc(
+                p.x,
+                p.y,
+                p.size * p.life,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+
+        particles = particles.filter(p => p.life > 0);
+    }
+
+    function update(dt) {
+        elapsed += dt;
+
+        if (state === "running") {
+            const speed = width * 0.00035;
+
+            dial.vx = speed;
+            dial.x += dial.vx * dt;
+            dial.rotation += (dial.vx * dt) / dial.radius;
+
+            dial.jumpCooldown = Math.max(
+                0,
+                dial.jumpCooldown - dt
+            );
+
+            // Gravity and jumping
+            dial.vy += gravity * dt;
+            dial.y += dial.vy * dt;
+
+            if (dial.y >= groundY - dial.radius) {
+                dial.y = groundY - dial.radius;
+                dial.vy = 0;
+                dial.onGround = true;
+            } else {
+                dial.onGround = false;
+            }
+
+            dial.squash += (1 - dial.squash) * 0.015 * dt;
+            dial.stretch += (1 - dial.stretch) * 0.015 * dt;
+
+            // Collision detection
+            for (const obj of objects) {
+                if (obj.squashed) continue;
+
+                const dx = dial.x - obj.x;
+                const dy = dial.y - obj.y;
+
+                const collisionX =
+                    Math.abs(dx) < dial.radius + obj.width * 0.38;
+
+                const collisionY =
+                    Math.abs(dy) < dial.radius + obj.height * 0.38;
+
+                if (!collisionX || !collisionY) continue;
+
+                if (obj.type === "phone") {
+                    if (dial.onGround && dial.y + dial.radius >= obj.y - 10) {
+                        obj.squashed = true;
+                        obj.squash = 0.08;
+
+                        dial.squash = 1.2;
+                        dial.stretch = 0.78;
+
+                        dial.vy = -0.22;
+                        dial.onGround = false;
+                    }
+                }
+
+                if (obj.type === "headphones") {
+                    // The dial must jump high enough to clear them.
+                    const jumpedOver =
+                        dial.y + dial.radius < obj.y - obj.height * 0.25;
+
+                    if (jumpedOver) continue;
+
+                    explode(dial.x, dial.y);
+                    return;
+                }
+            }
+
+            // Automatic jump before headphones
+            const headphones = objects.find(
+                o => o.type === "headphones"
+            );
+
+            if (
+                headphones &&
+                dial.x > headphones.x - 190 &&
+                dial.x < headphones.x - 75 &&
+                dial.onGround &&
+                dial.jumpCooldown <= 0
+            ) {
+                dial.vy = -0.85;
+                dial.onGround = false;
+                dial.jumpCooldown = 1300;
+
+                dial.stretch = 1.25;
+                dial.squash = 0.82;
+            }
+
+            // Loop the environment after passing it
+            if (dial.x > width + 100) {
+                reset();
+            }
+        }
+
+        if (state === "exploding") {
+            restartTimer += dt;
+
+            if (restartTimer > 1800) {
+                reset();
+            }
+        }
+
+        if (state === "running") {
+            for (const obj of objects) {
+                if (obj.type === "phone" && obj.squashed) {
+                    obj.squash = Math.max(0, obj.squash - dt * 0.003);
+                }
+            }
+        }
+    }
+
+    function render(dt) {
+        ctx.clearRect(0, 0, width, height);
+
+        drawFloor();
+        drawObjects();
+
+        if (state === "running") {
+            drawDial();
+        }
+
+        if (state === "exploding") {
+            drawParticles(dt);
+        }
+    }
+
+    function loop(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+
+        const dt = Math.min(timestamp - lastTime, 40);
+        lastTime = timestamp;
+
+        update(dt);
+        render(dt);
+
+        animationId = requestAnimationFrame(loop);
+    }
+
+    resize();
+    reset();
+    animationId = requestAnimationFrame(loop);
+
+})();
+</script>
+
+</body>
+</html>

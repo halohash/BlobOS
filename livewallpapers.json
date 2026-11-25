@@ -28,5 +28,11 @@
     "name": "Flappy Phone (Screensaver Port)",
     "type": "html",
     "src": "screensavers/flappyphone.html"
+  },
+  {
+    "id": "rollingdial_dd",
+    "name": "Rolling Dial (Screensaver Port)",
+    "type": "html",
+    "src": "screensavers/rollingdial.html"
   }
 ]

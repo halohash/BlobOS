@@ -33,5 +33,11 @@
     "name": "Flappy Phone",
     "type": "html",
     "src": "/screensavers/flappyphone.html"
+  },
+  {
+    "id": "rolling_dial",
+    "name": "Rolling Dial",
+    "type": "html",
+    "src": "/screensavers/rollingdial.html"
   }
 ]
