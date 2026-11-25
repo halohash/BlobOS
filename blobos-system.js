@@ -314,8 +314,8 @@
         localStorage.setItem("homeEnabled", String(active));
 
         if (active) {
-          window.getElementById("homeScreen").style.display = "none"
-        } else {window.getElementById("homeScreen").style.display = "flex"}
+          window.document.getElementById("homeScreen").style.display = "none"
+        } else {wwindow.document.getElementById("homeScreen").style.display = "flex"}
       }
 
       if (key === "wifi") {
