@@ -38,9 +38,9 @@ window.errorMessage = function(){holoDialog({
             builtin: "gallery"
         },
         "com.blobos.browser": {
-        "icon": "/icons/browser.png",
-        "name": "Browser",
-        "iframe": "/browser"
+            icon: "/icons/browser.png",
+            name: "Browser",
+            iframe: "/browser"
         }
     };
 
