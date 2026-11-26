@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#101820">
+  <title>Dial Roll</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="gameShell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">◉</span><span>Dial Roll</span></div>
+      <div class="hud" id="hud" hidden>
+        <span>WORLD <b id="worldLabel">1-1</b></span>
+        <span>SCORE <b id="scoreLabel">000000</b></span>
+        <span>PHONES <b id="phoneLabel">0</b></span>
+        <span>BEST <b id="bestLabel">000000</b></span>
+      </div>
+      <button class="small-button" id="pauseButton" hidden>Ⅱ</button>
+    </header>
+    <section id="stageWrap">
+      <canvas id="gameCanvas" aria-label="Dial Roll game"></canvas>
+      <div id="overlay" class="overlay">
+        <div class="menu-panel">
+          <div class="eyebrow">A tiny rolling adventure</div>
+          <h1 id="menuTitle">DIAL ROLL</h1>
+          <p id="menuSubtitle">Roll, jump, collect phones, and watch out for headphones.</p>
+          <div id="mainMenu" class="menu-actions">
+            <button class="primary" id="playButton">Play</button>
+            <button id="editorButton">Map editor</button>
+            <button id="levelsButton">Level select</button>
+          </div>
+          <div id="levelMenu" class="sub-menu" hidden>
+            <label for="seedInput">World name or seed</label>
+            <input id="seedInput" type="text" maxlength="48" placeholder="Try: browser">
+            <label for="themeSelect">Theme</label>
+            <select id="themeSelect">
+              <option value="auto">Automatic</option>
+              <option value="light">Light Holo</option>
+              <option value="dark">Dark Holo</option>
+              <option value="snow">Holitas</option>
+            </select>
+            <p class="hint">Enter any name to generate a world. Type <b>browser</b> and collect 3 phones to unlock the Globe skin.</p>
+            <button class="primary" id="generateButton">Generate world</button>
+            <button id="levelBackButton">Back</button>
+          </div>
+          <div id="editorMenu" class="sub-menu" hidden>
+            <p>Tap or click a cell to cycle its contents. Use the palette to choose what to place.</p>
+            <div class="editor-toolbar">
+              <select id="editorTool">
+                <option value="ground">Ground</option><option value="empty">Erase</option>
+                <option value="brick">Brick</option><option value="question">Question block</option>
+                <option value="phone">Phone</option><option value="headphone">Headphone</option>
+                <option value="chicken">Chicken</option><option value="download">Download power-up</option>
+              </select>
+              <button id="editorExport">Export worlds.json</button>
+            </div>
+            <canvas id="editorCanvas" width="768" height="360"></canvas>
+            <input id="worldNameInput" type="text" value="My Custom World" maxlength="40" aria-label="World name">
+            <div class="editor-actions"><button class="primary" id="editorTest">Play this map</button><button id="editorBackButton">Back</button></div>
+          </div>
+          <div id="messageMenu" class="sub-menu" hidden>
+            <p id="messageText"></p>
+            <button class="primary" id="messageContinue">Continue</button>
+            <button id="messageHome">Main menu</button>
+          </div>
+        </div>
+      </div>
+      <div id="touchControls" class="touch-controls" hidden>
+        <div class="touch-left"><button data-control="left" aria-label="Roll left">◀</button><button data-control="right" aria-label="Roll right">▶</button></div>
+        <div class="touch-right"><button data-control="jump" aria-label="Jump">▲</button></div>
+      </div>
+    </section>
+    <footer><span>← → roll</span><span>SPACE jump</span><span>Esc pause</span><span id="themeLabel">LIGHT HOLO</span></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>

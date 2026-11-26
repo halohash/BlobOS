@@ -182,20 +182,13 @@
     }
 
     function appIcon(app) {
-        if (app.icon) {
             const img = document.createElement("img");
-
-            img.src = app.icon;
+            img.src = app.icon || "/icons/sym_def_app_icon.png";
             img.alt = "";
-
             img.onerror = () => {
-                img.replaceWith(makeMaterialIcon("apps"));
+                img.src = "/icons/sym_def_app_icon.png";
             };
-
             return img;
-        }
-
-        return makeMaterialIcon("apps");
     }
 
     // --------------------------------------------------
@@ -1109,7 +1102,7 @@
             image.src =
                 game.icon ||
                 game.image ||
-                "/icons/play-games-kitkat.png";
+                "/icons/sym_def_app_icon.png";
 
             image.alt = "";
 
@@ -1117,7 +1110,7 @@
                 "width:100%;height:125px;object-fit:cover;background:#e9f0e9;";
 
             image.onerror = () => {
-                image.src = "/icons/play-games-kitkat.png";
+                image.src = "/icons/sym_def_app_icon.png";
                 image.onerror = null;
             };
 

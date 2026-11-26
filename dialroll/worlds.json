@@ -1,0 +1,192 @@
+{
+  "bassass": {
+    "name": "Demo Holitas",
+    "width": 30,
+    "height": 9,
+    "theme": "snow",
+    "solids": [
+      {
+        "x": 0,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 1,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 2,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 3,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 6,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 7,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 8,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 9,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 10,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 11,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 12,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 13,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 14,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 15,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 16,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 17,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 18,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 19,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 20,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 21,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 22,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 23,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 24,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 25,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 26,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 27,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 28,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 29,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 7,
+        "y": 6,
+        "type": "question"
+      },
+      {
+        "x": 8,
+        "y": 6,
+        "type": "brick"
+      }
+    ],
+    "entities": [
+      {
+        "x": 5,
+        "y": 7,
+        "type": "phone"
+      },
+      {
+        "x": 11,
+        "y": 7,
+        "type": "chicken"
+      },
+      {
+        "x": 16,
+        "y": 7,
+        "type": "headphone"
+      },
+      {
+        "x": 22,
+        "y": 6,
+        "type": "download"
+      }
+    ]
+  }
+}
