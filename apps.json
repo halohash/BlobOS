@@ -1,9 +1,4 @@
 {
-  "com.riski.aisr": {
-    "icon": "/icons/phone.png",
-    "name": "AI Sponge Rehydrated",
-    "iframe": "https://www.youtube.com/embed/live_stream?channel=UCsKWE9frgzdA5hHGGbA9pDQ"
-  },
   "com.blobos.ondemand": {
     "name": "On Demand",
     "icon": "icons/ondemand.png",
