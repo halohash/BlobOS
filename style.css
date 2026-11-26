@@ -649,8 +649,29 @@ button {
     min-height: 0;
     overflow: auto;
     position: relative;
-    background: #17232c;
+    /*  background: #17232c;    */
+    background-color: #000000;
+    background-image: linear-gradient(to bottom, #000000 0%, #272d33 100%);
     color: #e7eef2;
+}
+
+.app-content > .app-html > div > header {
+    color: white;
+    display: block;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 48px;
+    border-style: solid none;
+    border-width: 1px 0 2px;
+    border-color: transparent;
+    font-size: 16px;
+    z-index: 1000;
+    background-color: #010101;
+    border-top-color: #0F0F0F;
+    border-bottom-color: #33B5E5;
 }
 
 .app-content iframe {
