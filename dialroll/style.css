@@ -2,17 +2,39 @@
 :root{font-family:Roboto,"Arial",sans-serif;color:#263238;background:#111820;font-synthesis:none}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body{display:grid;place-items:center;background:radial-gradient(ellipse at center,#263744,#101820 72%)}
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #f3f3f3;
+}
 button,input,select{font:inherit}
 button{border:1px solid rgba(255,255,255,.26);border-radius:8px;background:#34434d;color:white;padding:11px 18px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.18);transition:transform .12s,filter .12s}
 button:hover{filter:brightness(1.12)}button:active{transform:translateY(2px);box-shadow:none}
 button.primary{background:linear-gradient(#80c342,#5d9d2b);border-color:#9bd86a;color:#fff}
-#gameShell{width:min(1100px,100vw);height:min(720px,100dvh);display:flex;flex-direction:column;overflow:hidden;background:#f3f3f3;box-shadow:0 20px 80px #0008;border-radius:14px}
+#gameShell {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #f3f3f3;
+    box-shadow: none;
+    border-radius: 0;
+}
 .topbar{height:52px;flex:0 0 52px;background:linear-gradient(#26343d,#17232b);color:#fff;display:flex;align-items:center;padding:0 16px;gap:18px;z-index:2}
 .brand{display:flex;align-items:center;gap:8px;font-weight:900;letter-spacing:.08em;font-size:15px;white-space:nowrap}.brand-mark{color:#8bc34a;font-size:25px}
 .hud{display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,30px);flex:1;font-size:10px;letter-spacing:.12em;color:#b9c5ca}.hud b{display:block;color:#fff;font-size:14px;letter-spacing:.04em;margin-top:2px}
 .small-button{padding:5px 12px;font-size:17px}
-#stageWrap{position:relative;flex:1;min-height:0;background:#f3f3f3;overflow:hidden}
+#stageWrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+}
 #gameCanvas{display:block;width:100%;height:100%;touch-action:none}
 .overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(15,25,32,.28);padding:18px}
 .overlay[hidden]{display:none}
