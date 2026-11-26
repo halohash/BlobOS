@@ -1,7 +1,7 @@
 
 {
     "defaultLauncher": "EGOHome",
-    "defaultWallpaper": "/wallpapers/1.png",
+    "defaultWallpaper": "/provo-google-night.jpg",
 
     "navbarIcons": {
         "back": "/icons/back.png",
@@ -12,7 +12,7 @@
     "hideNavbar": false,
 
     "managementDomain": "",
-    "dataCarrier": "Gantile",
+    "dataCarrier": "Demo Site",
 
     "disableEGOHome": false,
 
@@ -23,5 +23,5 @@
 
     "searchEngine": "https://www.google.com/search?q={query}",
 
-    "gamesFile": "./games.json"
+    "gamesFile": "/games.json"
 }

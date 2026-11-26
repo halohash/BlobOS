@@ -79,17 +79,15 @@ button {
     color: inherit;
     cursor: pointer;
 }
-
+.gantile-app, .games-app {
+    background: rgb(255, 255, 255);
+}
 .icon-hdpi {
     width: 48px;
     height: 48px;
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
-}
-
-.tray-search > .icon-hdpi.search {
-    background-image: url("https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/lollipop-release/core/res/res/drawable-hdpi/ic_menu_search_holo_dark.png");
 }
 
 /* BOOT SCREEN */
