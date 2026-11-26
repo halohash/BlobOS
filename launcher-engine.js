@@ -276,7 +276,31 @@
         localStorage.setItem(STORAGE_KEY, id);
         return true;
     }
+function setNavbarIcons(icons = {}) {
+    const buttons = {
+        back: document.getElementById("backButton"),
+        home: document.getElementById("homeButton"),
+        recent: document.getElementById("recentButton")
+    };
 
+    Object.entries(buttons).forEach(([name, button]) => {
+        if (!button) return;
+
+        const icon = icons[name];
+
+        if (icon) {
+            button.style.backgroundImage = `url("${icon}")`;
+            button.style.backgroundPosition = "center";
+            button.style.backgroundSize = "100% 100%";
+            button.style.backgroundRepeat = "no-repeat";
+        } else {
+            button.style.removeProperty("background-image");
+            button.style.removeProperty("background-position");
+            button.style.removeProperty("background-size");
+            button.style.removeProperty("background-repeat");
+        }
+    });
+}
     function createElement(id, options = {}) {
         const element = document.createElement(
             options.tag || "div"
@@ -306,6 +330,7 @@
         getLaunchers,
         getActiveLauncher,
         getActiveLauncherId,
+        setNavbarIcons,
         getDefaultLauncher,
         setDefaultLauncher,
         createElement

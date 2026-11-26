@@ -10,7 +10,7 @@
 
     window.errorMessage = function () {
         if (window.holoDialog) {
-            holoDialog({
+            window.holoDialog({
                 title: "Oops!",
                 message: "Oops! That didn't work. Give it another shot in a moment.",
                 positiveText: "OK"
@@ -25,6 +25,7 @@
     const appWindow = $("appWindow");
     const appContent = $("appContent");
     const appGrid = $("appGrid");
+    const homeScreen = $("homeScreen");
     const homeShortcuts = $("homeShortcuts");
     const recentPanel = $("recentPanel");
 
@@ -53,32 +54,50 @@
         dataCarrier: "Gantile",
         disableEGOHome: false,
         kiosk: false,
+        kioskApp: "",
         OEM: "BlobOS",
         searchEngine: "https://www.google.com/search?q={query}",
         gamesFile: "./games.json"
     };
 
-BlobOSLauncher.register({
-    id: "egohome",
-    name: "EGOHome",
-    version: "1.0.0",
-    description: "The default BlobOS launcher",
+    // --------------------------------------------------
+    // LAUNCHER REGISTRATION
+    // --------------------------------------------------
 
-    element: document.getElementById("homeScreen"),
+    if (!window.BlobOSLauncher) {
+        console.error("BlobOS: launcher-engine.js is missing.");
+    } else {
+        BlobOSLauncher.register({
+            id: "egohome",
+            name: "EGOHome",
+            version: "1.0.0",
+            description: "The default BlobOS launcher",
 
-    init() {
-        console.log("EGOHome initialized");
-    },
+            element: homeScreen,
 
-    onShow() {
-        document.getElementById("homeScreen").hidden = false;
-    },
+            init() {
+                homeScreen.classList.remove("home-hidden");
+                homeScreen.hidden = false;
 
-    onHide() {
-        document.getElementById("homeScreen").hidden = true;
+                renderEGOHome();
+            },
+
+            onShow() {
+                homeScreen.classList.remove("home-hidden");
+                homeScreen.hidden = false;
+            },
+
+            onHide() {
+                homeScreen.classList.add("home-hidden");
+                homeScreen.hidden = true;
+            }
+        });
     }
-});
-    
+
+    // --------------------------------------------------
+    // BUILT-IN APPS
+    // --------------------------------------------------
+
     const builtins = {
         "com.blobos.settings": {
             name: "Settings",
@@ -120,6 +139,10 @@ BlobOSLauncher.register({
         }
     };
 
+    // --------------------------------------------------
+    // UTILITIES
+    // --------------------------------------------------
+
     function safeText(value) {
         return String(value == null ? "" : value);
     }
@@ -140,6 +163,67 @@ BlobOSLauncher.register({
 
     window.toast = showToast;
 
+    function makeMaterialIcon(name) {
+        const span = document.createElement("span");
+        span.className = "material-icons";
+        span.textContent = name;
+        return span;
+    }
+
+    function makeButton(label, callback) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.textContent = label;
+
+        button.addEventListener("click", callback);
+
+        return button;
+    }
+
+    function appIcon(app) {
+        if (app.icon) {
+            const img = document.createElement("img");
+
+            img.src = app.icon;
+            img.alt = "";
+
+            img.onerror = () => {
+                img.replaceWith(makeMaterialIcon("apps"));
+            };
+
+            return img;
+        }
+
+        return makeMaterialIcon("apps");
+    }
+
+    // --------------------------------------------------
+    // JSON LOADING
+    // --------------------------------------------------
+
+    async function loadJSON(path, fallback) {
+        try {
+            const response = await fetch(path, {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            return await response.json();
+
+        } catch (error) {
+            console.warn(
+                "BlobOS: Could not load " + path,
+                error
+            );
+
+            return fallback;
+        }
+    }
+
     // --------------------------------------------------
     // CONFIGURATION
     // --------------------------------------------------
@@ -147,7 +231,11 @@ BlobOSLauncher.register({
     async function loadConfig() {
         const loaded = await loadJSON("./config.json", {});
 
-        config = Object.assign({}, DEFAULT_CONFIG, loaded);
+        config = Object.assign(
+            {},
+            DEFAULT_CONFIG,
+            loaded
+        );
 
         config.navbarIcons = Object.assign(
             {},
@@ -157,57 +245,71 @@ BlobOSLauncher.register({
 
         window.blobosConfig = config;
 
-        document.documentElement.dataset.oem = config.OEM;
-        document.documentElement.dataset.launcher = config.defaultLauncher;
+        document.documentElement.dataset.oem =
+            config.OEM || "BlobOS";
 
         document.title = config.OEM || "BlobOS";
 
-        if (config.hideNavbar) {
-            document.documentElement.classList.add("navbar-hidden");
-        }
+        document.documentElement.classList.toggle(
+            "navbar-hidden",
+            Boolean(config.hideNavbar)
+        );
 
-        if (config.kiosk) {
-            document.documentElement.classList.add("kiosk-mode");
-        }
+        document.documentElement.classList.toggle(
+            "kiosk-mode",
+            Boolean(config.kiosk)
+        );
 
-        applyNavbarIcons();
+        document.documentElement.classList.toggle(
+            "ego-home-disabled",
+            Boolean(config.disableEGOHome)
+        );
 
         if (config.managementDomain) {
-            window.blobosManagementDomain = config.managementDomain;
+            window.blobosManagementDomain =
+                config.managementDomain;
         }
 
         window.blobosDataCarrier = config.dataCarrier;
 
-        if (config.disableEGOHome) {
-            document.documentElement.classList.add("ego-home-disabled");
-        }
+        applyNavbarIcons();
 
-        console.log("BlobOS: Configuration loaded", config);
+        console.log(
+            "BlobOS: Configuration loaded",
+            config
+        );
     }
 
     function applyNavbarIcons() {
-        const icons = {
+        const icons = config.navbarIcons || {};
+
+        if (
+            window.BlobOSLauncher &&
+            typeof BlobOSLauncher.setNavbarIcons === "function"
+        ) {
+            BlobOSLauncher.setNavbarIcons(icons);
+            return;
+        }
+
+        const buttons = {
             back: $("backButton"),
             home: $("homeButton"),
             recent: $("recentButton")
         };
 
-        Object.entries(icons).forEach(([name, button]) => {
+        Object.entries(buttons).forEach(([name, button]) => {
             if (!button) return;
 
-            const path = config.navbarIcons[name];
+            const path = icons[name];
 
-            if (!path) return;
+            if (path) {
+                button.style.backgroundImage =
+                    'url("' + path.replace(/["\\]/g, "") + '")';
 
-            const img = document.createElement("img");
-            img.src = path;
-            img.alt = "";
-            img.draggable = false;
-
-            img.style.cssText =
-                "width:24px;height:24px;object-fit:contain;pointer-events:none;";
-
-            button.replaceChildren(img);
+                button.style.backgroundPosition = "center";
+                button.style.backgroundSize = "100% 100%";
+                button.style.backgroundRepeat = "no-repeat";
+            }
         });
     }
 
@@ -216,19 +318,26 @@ BlobOSLauncher.register({
     // --------------------------------------------------
 
     function closeTray() {
+        if (!tray) return;
+
         tray.classList.remove("open");
         tray.setAttribute("aria-hidden", "true");
     }
 
     function openTray() {
-        if (config.kiosk) return;
+        if (config.kiosk || !tray) return;
 
-        recentPanel.classList.remove("open");
+        if (recentPanel) {
+            recentPanel.classList.remove("open");
+        }
 
         tray.classList.add("open");
         tray.setAttribute("aria-hidden", "false");
 
-        $("appSearch").value = "";
+        if ($("appSearch")) {
+            $("appSearch").value = "";
+        }
+
         renderApps();
     }
 
@@ -236,25 +345,39 @@ BlobOSLauncher.register({
         return (
             localStorage.getItem("blobos_animations") !== "false" &&
             !document.documentElement.classList.contains("no-animations") &&
-            !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            !window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches
         );
     }
 
+    // --------------------------------------------------
+    // APP CLOSING
+    // --------------------------------------------------
+
     function closeApp() {
-        if (appClosePromise) return appClosePromise;
+        if (appClosePromise) {
+            return appClosePromise;
+        }
 
         if (!appWindow.classList.contains("open")) {
             appWindow.setAttribute("aria-hidden", "true");
             appContent.replaceChildren();
             currentApp = null;
+
             return Promise.resolve();
         }
 
-        if (!animationsEnabled() || !appWindow.animate) {
+        if (
+            !animationsEnabled() ||
+            !appWindow.animate
+        ) {
             appWindow.classList.remove("open");
             appWindow.setAttribute("aria-hidden", "true");
+
             appContent.replaceChildren();
             currentApp = null;
+
             return Promise.resolve();
         }
 
@@ -287,6 +410,7 @@ BlobOSLauncher.register({
                 currentApp = null;
 
                 appClosePromise = null;
+
                 resolve();
             };
 
@@ -304,7 +428,10 @@ BlobOSLauncher.register({
 
         closeApp();
         closeTray();
-        recentPanel.classList.remove("open");
+
+        if (recentPanel) {
+            recentPanel.classList.remove("open");
+        }
     }
 
     // --------------------------------------------------
@@ -330,8 +457,10 @@ BlobOSLauncher.register({
 
         if (!recentApps.length) {
             const empty = document.createElement("div");
+
             empty.className = "recent-item";
             empty.textContent = "No recent apps";
+
             list.append(empty);
             return;
         }
@@ -341,46 +470,34 @@ BlobOSLauncher.register({
             if (!app) return;
 
             const item = document.createElement("div");
+
             item.className = "recent-item";
             item.textContent = app.name || id;
 
-            item.addEventListener("click", () => launchApp(id));
+            item.addEventListener("click", () => {
+                launchApp(id);
+            });
 
             list.append(item);
         });
     }
 
     // --------------------------------------------------
-    // APP ICONS
+    // EGOHOME SEARCH
     // --------------------------------------------------
 
-    function makeMaterialIcon(name) {
-        const span = document.createElement("span");
-        span.className = "material-icons";
-        span.textContent = name;
-        return span;
+    function performGantileSearch(query) {
+        const template =
+            config.searchEngine ||
+            "https://www.google.com/search?q={query}";
+
+        const url = template.replace(
+            /\{query\}/g,
+            encodeURIComponent(query)
+        );
+
+        window.open(url, "_blank", "noopener");
     }
-
-    function appIcon(app) {
-        if (app.icon) {
-            const img = document.createElement("img");
-
-            img.src = app.icon;
-            img.alt = "";
-
-            img.onerror = () => {
-                img.replaceWith(makeMaterialIcon("apps"));
-            };
-
-            return img;
-        }
-
-        return makeMaterialIcon("apps");
-    }
-
-    // --------------------------------------------------
-    // EGOHOME LAUNCHER
-    // --------------------------------------------------
 
     function createEGOSearch() {
         const search = document.createElement("form");
@@ -420,9 +537,11 @@ BlobOSLauncher.register({
             "width:42px;height:100%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;";
 
         const micImage = document.createElement("img");
+
         micImage.src = "/icons/mic.png";
         micImage.alt = "Microphone";
-        micImage.style.cssText = "width:23px;height:23px;object-fit:contain;";
+        micImage.style.cssText =
+            "width:23px;height:23px;object-fit:contain;";
 
         mic.append(micImage);
 
@@ -435,9 +554,11 @@ BlobOSLauncher.register({
             "width:42px;height:100%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;";
 
         const searchImage = document.createElement("img");
+
         searchImage.src = "/icons/holo_search.png";
         searchImage.alt = "Search";
-        searchImage.style.cssText = "width:24px;height:24px;object-fit:contain;";
+        searchImage.style.cssText =
+            "width:24px;height:24px;object-fit:contain;";
 
         submit.append(searchImage);
 
@@ -447,14 +568,17 @@ BlobOSLauncher.register({
             event.preventDefault();
 
             const query = input.value.trim();
-            if (!query) return;
 
-            performGantileSearch(query);
+            if (query) {
+                performGantileSearch(query);
+            }
         });
 
         mic.addEventListener("click", () => {
-            if (!("webkitSpeechRecognition" in window) &&
-                !("SpeechRecognition" in window)) {
+            if (
+                !("webkitSpeechRecognition" in window) &&
+                !("SpeechRecognition" in window)
+            ) {
                 showToast("Voice search is not supported");
                 return;
             }
@@ -468,7 +592,9 @@ BlobOSLauncher.register({
             recognition.lang = navigator.language || "en-US";
 
             recognition.onresult = event => {
-                input.value = event.results[0][0].transcript;
+                input.value =
+                    event.results[0][0].transcript;
+
                 search.requestSubmit();
             };
 
@@ -482,20 +608,26 @@ BlobOSLauncher.register({
         return search;
     }
 
+    // --------------------------------------------------
+    // EGOHOME
+    // --------------------------------------------------
+
     function renderEGOHome() {
         if (!homeShortcuts) return;
 
         homeShortcuts.replaceChildren();
 
         const existing = $("egoSearch");
-        if (existing) existing.remove();
+
+        if (existing) {
+            existing.remove();
+        }
 
         if (config.disableEGOHome) return;
 
         const search = createEGOSearch();
-        search.id = "egoSearch";
 
-        const homeScreen = $("homeScreen");
+        search.id = "egoSearch";
 
         if (homeScreen) {
             homeScreen.append(search);
@@ -520,14 +652,21 @@ BlobOSLauncher.register({
             button.append(appIcon(app));
 
             const label = document.createElement("span");
+
             label.textContent = app.name;
 
             button.append(label);
 
-            button.addEventListener("click", () => launchApp(id));
+            button.addEventListener("click", () => {
+                launchApp(id);
+            });
 
             homeShortcuts.append(button);
         });
+    }
+
+    function renderShortcuts() {
+        renderEGOHome();
     }
 
     // --------------------------------------------------
@@ -535,6 +674,8 @@ BlobOSLauncher.register({
     // --------------------------------------------------
 
     function renderApps(filter = "") {
+        if (!appGrid) return;
+
         appGrid.replaceChildren();
 
         const query = filter.toLowerCase();
@@ -545,7 +686,9 @@ BlobOSLauncher.register({
             if (
                 query &&
                 !(
-                    safeText(app.name || id).toLowerCase().includes(query) ||
+                    safeText(app.name || id)
+                        .toLowerCase()
+                        .includes(query) ||
                     id.toLowerCase().includes(query)
                 )
             ) {
@@ -560,11 +703,14 @@ BlobOSLauncher.register({
             tile.append(appIcon(app));
 
             const label = document.createElement("span");
+
             label.textContent = app.name || id;
 
             tile.append(label);
 
-            tile.addEventListener("click", () => launchApp(id));
+            tile.addEventListener("click", () => {
+                launchApp(id);
+            });
 
             appGrid.append(tile);
         });
@@ -578,32 +724,6 @@ BlobOSLauncher.register({
             empty.textContent = "No apps found";
 
             appGrid.append(empty);
-        }
-    }
-
-    function renderShortcuts() {
-        renderEGOHome();
-    }
-
-    // --------------------------------------------------
-    // JSON LOADING
-    // --------------------------------------------------
-
-    async function loadJSON(path, fallback) {
-        try {
-            const response = await fetch(path, {
-                cache: "no-store"
-            });
-
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-
-            return await response.json();
-
-        } catch (error) {
-            console.warn("BlobOS: Could not load " + path, error);
-            return fallback;
         }
     }
 
@@ -636,11 +756,18 @@ BlobOSLauncher.register({
 
             script.onload = () => {
                 loadedServices.add(id);
-                console.log("BlobOS: Service started:", id);
+
+                console.log(
+                    "BlobOS: Service started:",
+                    id
+                );
             };
 
             script.onerror = () => {
-                console.error("BlobOS: Failed to load service:", id);
+                console.error(
+                    "BlobOS: Failed to load service:",
+                    id
+                );
             };
 
             document.head.appendChild(script);
@@ -676,10 +803,17 @@ BlobOSLauncher.register({
                     }
                 });
 
-                console.log("BlobOS: Loaded repository", url);
+                console.log(
+                    "BlobOS: Loaded repository",
+                    url
+                );
 
             } catch (error) {
-                console.warn("BlobOS: Repository failed:", url, error);
+                console.warn(
+                    "BlobOS: Repository failed:",
+                    url,
+                    error
+                );
             }
         }
     }
@@ -696,6 +830,7 @@ BlobOSLauncher.register({
         renderApps();
         renderShortcuts();
         renderRecent();
+
         loadServices();
     }
 
@@ -721,7 +856,9 @@ BlobOSLauncher.register({
 
         closeTray();
 
-        recentPanel.classList.remove("open");
+        if (recentPanel) {
+            recentPanel.classList.remove("open");
+        }
 
         currentApp = id;
 
@@ -803,11 +940,12 @@ BlobOSLauncher.register({
             return;
         }
 
-        appContent.textContent = "This app does not have an HTML source.";
+        appContent.textContent =
+            "This app does not have an HTML source.";
     }
 
     // --------------------------------------------------
-    // APP HEADER
+    // GANTILE HEADER
     // --------------------------------------------------
 
     function createServiceHeader(title, color) {
@@ -826,21 +964,8 @@ BlobOSLauncher.register({
     }
 
     // --------------------------------------------------
-    // GANTILE SEARCH ENGINE
+    // GANTILE SEARCH
     // --------------------------------------------------
-
-    function performGantileSearch(query) {
-        const template =
-            config.searchEngine ||
-            "https://www.google.com/search?q={query}";
-
-        const url = template.replace(
-            /\{query\}/g,
-            encodeURIComponent(query)
-        );
-
-        window.open(url, "_blank", "noopener");
-    }
 
     function renderGantile() {
         const shell = document.createElement("div");
@@ -865,8 +990,8 @@ BlobOSLauncher.register({
             "width:90px;height:90px;object-fit:contain;margin:20px auto;";
 
         const heading = document.createElement("h2");
-        heading.textContent = "Gantile";
 
+        heading.textContent = "Gantile";
         heading.style.fontWeight = "300";
 
         const form = document.createElement("form");
@@ -898,11 +1023,12 @@ BlobOSLauncher.register({
 
             const query = input.value.trim();
 
-            if (query) performGantileSearch(query);
+            if (query) {
+                performGantileSearch(query);
+            }
         });
 
         body.append(logo, heading, form);
-
         shell.append(body);
 
         appContent.append(shell);
@@ -929,7 +1055,6 @@ BlobOSLauncher.register({
         const heading = document.createElement("h2");
 
         heading.textContent = "Games";
-
         heading.style.fontWeight = "300";
 
         const grid = document.createElement("div");
@@ -938,7 +1063,6 @@ BlobOSLauncher.register({
             "display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:16px;";
 
         body.append(heading, grid);
-
         shell.append(body);
 
         appContent.append(shell);
@@ -949,7 +1073,10 @@ BlobOSLauncher.register({
 
         body.append(loading);
 
-        const data = await loadJSON(config.gamesFile || "./games.json", []);
+        const data = await loadJSON(
+            config.gamesFile || "./games.json",
+            []
+        );
 
         if (!Array.isArray(data)) {
             loading.textContent = "Invalid games.json format.";
@@ -979,7 +1106,11 @@ BlobOSLauncher.register({
 
             const image = document.createElement("img");
 
-            image.src = game.icon || game.image || "/icons/play-games-kitkat.png";
+            image.src =
+                game.icon ||
+                game.image ||
+                "/icons/play-games-kitkat.png";
+
             image.alt = "";
 
             image.style.cssText =
@@ -987,11 +1118,13 @@ BlobOSLauncher.register({
 
             image.onerror = () => {
                 image.src = "/icons/play-games-kitkat.png";
+                image.onerror = null;
             };
 
             const name = document.createElement("div");
 
-            name.textContent = game.name || game.title || "Untitled game";
+            name.textContent =
+                game.name || game.title || "Untitled game";
 
             name.style.cssText =
                 "padding:12px;font-size:15px;font-weight:500;";
@@ -1015,9 +1148,7 @@ BlobOSLauncher.register({
         const frame = document.createElement("iframe");
 
         frame.src = game.url || game.htmlurl || game.iframe;
-
         frame.title = game.name || game.title || "Game";
-
         frame.allow = "fullscreen; autoplay";
 
         frame.style.cssText =
@@ -1062,8 +1193,13 @@ BlobOSLauncher.register({
                 }
             };
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
         });
     }
 
@@ -1071,7 +1207,11 @@ BlobOSLauncher.register({
         const db = await openMusicDB();
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(MUSIC_STORE, "readwrite");
+            const transaction = db.transaction(
+                MUSIC_STORE,
+                "readwrite"
+            );
+
             const store = transaction.objectStore(MUSIC_STORE);
 
             Array.from(files).forEach(file => {
@@ -1101,7 +1241,10 @@ BlobOSLauncher.register({
         const db = await openMusicDB();
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(MUSIC_STORE, "readonly");
+            const transaction = db.transaction(
+                MUSIC_STORE,
+                "readonly"
+            );
 
             const request = transaction
                 .objectStore(MUSIC_STORE)
@@ -1109,6 +1252,7 @@ BlobOSLauncher.register({
 
             request.onsuccess = () => {
                 const result = request.result || [];
+
                 db.close();
                 resolve(result);
             };
@@ -1124,7 +1268,10 @@ BlobOSLauncher.register({
         const db = await openMusicDB();
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(MUSIC_STORE, "readwrite");
+            const transaction = db.transaction(
+                MUSIC_STORE,
+                "readwrite"
+            );
 
             transaction.objectStore(MUSIC_STORE).delete(id);
 
@@ -1160,7 +1307,6 @@ BlobOSLauncher.register({
         const heading = document.createElement("h2");
 
         heading.textContent = "My music";
-
         heading.style.fontWeight = "300";
 
         const description = document.createElement("p");
@@ -1194,7 +1340,9 @@ BlobOSLauncher.register({
         const audio = document.createElement("audio");
 
         audio.controls = true;
-        audio.style.cssText = "width:100%;margin-top:20px;";
+
+        audio.style.cssText =
+            "width:100%;margin-top:20px;";
 
         let currentObjectURL = null;
 
@@ -1225,7 +1373,8 @@ BlobOSLauncher.register({
                 if (!tracks.length) {
                     const empty = document.createElement("p");
 
-                    empty.textContent = "Your music library is empty.";
+                    empty.textContent =
+                        "Your music library is empty.";
 
                     empty.style.color = "#8999a2";
 
@@ -1251,7 +1400,8 @@ BlobOSLauncher.register({
                             URL.revokeObjectURL(currentObjectURL);
                         }
 
-                        currentObjectURL = URL.createObjectURL(track.blob);
+                        currentObjectURL =
+                            URL.createObjectURL(track.blob);
 
                         audio.src = currentObjectURL;
 
@@ -1260,13 +1410,16 @@ BlobOSLauncher.register({
                         });
                     });
 
-                    const remove = makeButton("Delete", async () => {
-                        await deleteMusicFile(track.id);
+                    const remove = makeButton(
+                        "Delete",
+                        async () => {
+                            await deleteMusicFile(track.id);
 
-                        renderTrackList();
+                            renderTrackList();
 
-                        showToast("Track deleted");
-                    });
+                            showToast("Track deleted");
+                        }
+                    );
 
                     row.append(title, play, remove);
 
@@ -1276,7 +1429,8 @@ BlobOSLauncher.register({
             } catch (error) {
                 const empty = document.createElement("p");
 
-                empty.textContent = "Music storage is unavailable.";
+                empty.textContent =
+                    "Music storage is unavailable.";
 
                 list.append(empty);
             }
@@ -1299,7 +1453,7 @@ BlobOSLauncher.register({
     }
 
     // --------------------------------------------------
-    // SETTINGS
+    // SETTINGS HELPERS
     // --------------------------------------------------
 
     function settingState() {
@@ -1343,7 +1497,8 @@ BlobOSLauncher.register({
         ].forEach(([key, icon, label]) => {
             const button = document.createElement("button");
 
-            button.className = key === active ? "active" : "";
+            button.className =
+                key === active ? "active" : "";
 
             button.append(makeMaterialIcon(icon));
 
@@ -1398,24 +1553,22 @@ BlobOSLauncher.register({
         input.checked = initial;
 
         input.addEventListener("change", () => {
-            localStorage.setItem(key, String(input.checked));
+            localStorage.setItem(
+                key,
+                String(input.checked)
+            );
 
-            if (callback) callback(input.checked);
+            if (callback) {
+                callback(input.checked);
+            }
         });
 
         return input;
     }
 
-    function makeButton(label, callback) {
-        const button = document.createElement("button");
-
-        button.type = "button";
-        button.textContent = label;
-
-        button.addEventListener("click", callback);
-
-        return button;
-    }
+    // --------------------------------------------------
+    // SETTINGS
+    // --------------------------------------------------
 
     function renderSettings(section = "display") {
         const shell = document.createElement("div");
@@ -1481,7 +1634,11 @@ BlobOSLauncher.register({
             clock.value = String(state.clock24);
 
             clock.addEventListener("change", () => {
-                localStorage.setItem("blobos_clock24", clock.value);
+                localStorage.setItem(
+                    "blobos_clock24",
+                    clock.value
+                );
+
                 updateClock();
             });
 
@@ -1522,7 +1679,10 @@ BlobOSLauncher.register({
                 button.append(img);
 
                 button.addEventListener("click", () => {
-                    localStorage.setItem("blobos_wallpaper", path);
+                    localStorage.setItem(
+                        "blobos_wallpaper",
+                        path
+                    );
 
                     applyWallpaper(path);
 
@@ -1543,14 +1703,14 @@ BlobOSLauncher.register({
             const liveTitle = document.createElement("h3");
 
             liveTitle.textContent = "Live wallpapers";
-
             liveTitle.style.marginTop = "28px";
 
             content.append(liveTitle);
 
-            const liveWallpapers = window.blobosGetLiveWallpapers
-                ? window.blobosGetLiveWallpapers()
-                : [];
+            const liveWallpapers =
+                window.blobosGetLiveWallpapers
+                    ? window.blobosGetLiveWallpapers()
+                    : [];
 
             if (liveWallpapers.length) {
                 liveWallpapers.forEach(wallpaper => {
@@ -1564,7 +1724,8 @@ BlobOSLauncher.register({
 
                     const name = document.createElement("strong");
 
-                    name.textContent = wallpaper.name || wallpaper.id;
+                    name.textContent =
+                        wallpaper.name || wallpaper.id;
 
                     const description = document.createElement("small");
 
@@ -1574,12 +1735,14 @@ BlobOSLauncher.register({
                     const info = document.createElement("div");
 
                     info.append(name, description);
-
                     button.append(info);
 
                     button.addEventListener("click", () => {
                         if (window.blobosSetLiveWallpaper) {
-                            window.blobosSetLiveWallpaper(wallpaper.id);
+                            window.blobosSetLiveWallpaper(
+                                wallpaper.id
+                            );
+
                             showToast("Live wallpaper applied");
                         }
                     });
@@ -1590,7 +1753,6 @@ BlobOSLauncher.register({
                 const empty = document.createElement("div");
 
                 empty.className = "settings-about";
-
                 empty.textContent = "No live wallpapers found.";
 
                 content.append(empty);
@@ -1641,7 +1803,8 @@ BlobOSLauncher.register({
             carrier.className = "settings-about";
 
             carrier.textContent =
-                "Data carrier: " + (config.dataCarrier || "Unknown");
+                "Data carrier: " +
+                (config.dataCarrier || "Unknown");
 
             content.append(carrier);
         }
@@ -1670,67 +1833,70 @@ BlobOSLauncher.register({
             input.style.cssText =
                 "width:100%;padding:12px;margin:16px 0;background:#17232d;color:#fff;border:1px solid #405566;";
 
-            const addButton = makeButton("Add repository", async () => {
-                const url = input.value.trim();
+            const addButton = makeButton(
+                "Add repository",
+                async () => {
+                    const url = input.value.trim();
 
-                if (!url) {
-                    showToast("Enter a repository URL");
-                    return;
-                }
-
-                try {
-                    const parsed = new URL(url);
-
-                    if (
-                        parsed.protocol !== "https:" &&
-                        parsed.protocol !== "http:"
-                    ) {
-                        throw new Error("Invalid protocol");
-                    }
-
-                    const response = await fetch(url, {
-                        cache: "no-store"
-                    });
-
-                    if (!response.ok) {
-                        throw new Error("HTTP " + response.status);
-                    }
-
-                    const data = await response.json();
-
-                    if (
-                        !data ||
-                        typeof data !== "object" ||
-                        Array.isArray(data)
-                    ) {
-                        throw new Error("Invalid repository format");
-                    }
-
-                    const repositories = getRepositories();
-
-                    if (repositories.includes(url)) {
-                        showToast("Repository already added");
+                    if (!url) {
+                        showToast("Enter a repository URL");
                         return;
                     }
 
-                    repositories.push(url);
+                    try {
+                        const parsed = new URL(url);
 
-                    localStorage.setItem(
-                        "blobos_repositories",
-                        JSON.stringify(repositories)
-                    );
+                        if (
+                            parsed.protocol !== "https:" &&
+                            parsed.protocol !== "http:"
+                        ) {
+                            throw new Error("Invalid protocol");
+                        }
 
-                    await refreshAppRepositories();
+                        const response = await fetch(url, {
+                            cache: "no-store"
+                        });
 
-                    showToast("Repository added");
+                        if (!response.ok) {
+                            throw new Error("HTTP " + response.status);
+                        }
 
-                    renderSettings("repositories");
+                        const data = await response.json();
 
-                } catch (error) {
-                    console.error(error);
-                    showToast("Could not add repository");
+                        if (
+                            !data ||
+                            typeof data !== "object" ||
+                            Array.isArray(data)
+                        ) {
+                            throw new Error("Invalid repository format");
+                        }
+
+                        const repositories = getRepositories();
+
+                        if (repositories.includes(url)) {
+                            showToast("Repository already added");
+                            return;
+                        }
+
+                        repositories.push(url);
+
+                        localStorage.setItem(
+                            "blobos_repositories",
+                            JSON.stringify(repositories)
+                        );
+
+                        await refreshAppRepositories();
+
+                        showToast("Repository added");
+
+                        renderSettings("repositories");
+
+                    } catch (error) {
+                        console.error(error);
+                        showToast("Could not add repository");
+                    }
                 }
-            });
+            );
 
             content.append(input, addButton);
 
@@ -1767,22 +1933,25 @@ BlobOSLauncher.register({
 
                 label.textContent = url;
 
-                const remove = makeButton("Remove", async () => {
-                    const updated = getRepositories();
+                const remove = makeButton(
+                    "Remove",
+                    async () => {
+                        const updated = getRepositories();
 
-                    updated.splice(index, 1);
+                        updated.splice(index, 1);
 
-                    localStorage.setItem(
-                        "blobos_repositories",
-                        JSON.stringify(updated)
-                    );
+                        localStorage.setItem(
+                            "blobos_repositories",
+                            JSON.stringify(updated)
+                        );
 
-                    await refreshAppRepositories();
+                        await refreshAppRepositories();
 
-                    showToast("Repository removed");
+                        showToast("Repository removed");
 
-                    renderSettings("repositories");
-                });
+                        renderSettings("repositories");
+                    }
+                );
 
                 row.append(label, remove);
 
@@ -1790,20 +1959,24 @@ BlobOSLauncher.register({
             });
 
             content.append(
-                makeButton("Refresh repositories", async () => {
-                    await refreshAppRepositories();
+                makeButton(
+                    "Refresh repositories",
+                    async () => {
+                        await refreshAppRepositories();
 
-                    showToast("Repositories refreshed");
+                        showToast("Repositories refreshed");
 
-                    renderSettings("repositories");
-                })
+                        renderSettings("repositories");
+                    }
+                )
             );
         }
 
         else if (section === "system") {
             const title = document.createElement("h3");
 
-            title.textContent = "About " + (config.OEM || "BlobOS");
+            title.textContent =
+                "About " + (config.OEM || "BlobOS");
 
             content.append(title);
 
@@ -1827,17 +2000,60 @@ BlobOSLauncher.register({
 
             content.append(management);
 
+            const launcherTitle = document.createElement("h3");
+
+            launcherTitle.textContent = "Launcher";
+            launcherTitle.style.marginTop = "28px";
+
+            content.append(launcherTitle);
+
+            if (window.BlobOSLauncher) {
+                const launcherSelect = document.createElement("select");
+
+                BlobOSLauncher.getLaunchers().forEach(launcher => {
+                    const option = document.createElement("option");
+
+                    option.value = launcher.id;
+                    option.textContent = launcher.name;
+
+                    launcherSelect.append(option);
+                });
+
+                launcherSelect.value =
+                    BlobOSLauncher.getActiveLauncherId() || "egohome";
+
+                launcherSelect.addEventListener("change", async () => {
+                    const success = await BlobOSLauncher.activate(
+                        launcherSelect.value
+                    );
+
+                    if (success) {
+                        showToast("Launcher changed");
+                    } else {
+                        showToast("Could not change launcher");
+                    }
+                });
+
+                content.append(
+                    settingRow(
+                        "Default launcher",
+                        "Choose your home screen",
+                        launcherSelect
+                    )
+                );
+            }
+
             const saverTitle = document.createElement("h3");
 
             saverTitle.textContent = "Screensavers";
-
             saverTitle.style.marginTop = "28px";
 
             content.append(saverTitle);
 
-            const screensavers = window.blobosGetScreensavers
-                ? window.blobosGetScreensavers()
-                : [];
+            const screensavers =
+                window.blobosGetScreensavers
+                    ? window.blobosGetScreensavers()
+                    : [];
 
             const selectedSaver =
                 localStorage.getItem("blobos_screensaver_id") || "";
@@ -1866,7 +2082,6 @@ BlobOSLauncher.register({
                     const info = document.createElement("div");
 
                     info.append(name, description);
-
                     button.append(info);
 
                     button.addEventListener("click", () => {
@@ -1889,29 +2104,21 @@ BlobOSLauncher.register({
             }
 
             content.append(
-                makeButton("Preview selected screensaver", () => {
-                    if (window.blobosStartDaydream) {
-                        window.blobosStartDaydream();
-                    } else {
-                        showToast("Screensavers are not ready yet");
+                makeButton(
+                    "Preview selected screensaver",
+                    () => {
+                        if (window.blobosStartDaydream) {
+                            window.blobosStartDaydream();
+                        } else {
+                            showToast("Screensavers are not ready yet");
+                        }
                     }
-                })
-            );
-
-            content.append(
-                makeButton("Factory Reset", () => {
-                    if (window.factoryReset) {
-                        window.factoryReset();
-                    } else {
-                        window.errorMessage();
-                    }
-                })
+                )
             );
 
             const timeoutTitle = document.createElement("h3");
 
             timeoutTitle.textContent = "Screensaver timeout";
-
             timeoutTitle.style.marginTop = "28px";
 
             content.append(timeoutTitle);
@@ -1972,19 +2179,32 @@ BlobOSLauncher.register({
                     "Start a screensaver when BlobOS is idle.",
                     makeToggle(
                         "blobos_screensaver_enabled",
-                        localStorage.getItem("blobos_screensaver_enabled") !== "false",
+                        localStorage.getItem(
+                            "blobos_screensaver_enabled"
+                        ) !== "false",
                         enabled => {
                             if (window.blobosSetScreensaverEnabled) {
-                                window.blobosSetScreensaverEnabled(enabled);
+                                window.blobosSetScreensaverEnabled(
+                                    enabled
+                                );
                             }
                         }
                     )
                 )
             );
+
+            content.append(
+                makeButton("Factory Reset", () => {
+                    if (window.factoryReset) {
+                        window.factoryReset();
+                    } else {
+                        window.errorMessage();
+                    }
+                })
+            );
         }
 
         main.append(content);
-
         shell.append(main);
 
         appContent.replaceChildren(shell);
@@ -1995,7 +2215,7 @@ BlobOSLauncher.register({
     // --------------------------------------------------
 
     function applyWallpaper(path) {
-        if (!path) return;
+        if (!path || !desktop) return;
 
         desktop.style.backgroundImage =
             'url("' + path.replace(/["\\]/g, "") + '")';
@@ -2004,11 +2224,13 @@ BlobOSLauncher.register({
     function renderGallery() {
         const wrap = document.createElement("div");
 
-        wrap.style.cssText = "padding:22px;color:#26343e";
+        wrap.style.cssText =
+            "padding:22px;color:#26343e";
 
         const heading = document.createElement("h2");
 
-        heading.style.cssText = "font-weight:300;margin:0 0 8px";
+        heading.style.cssText =
+            "font-weight:300;margin:0 0 8px";
 
         heading.textContent = "Wallpaper";
 
@@ -2016,7 +2238,8 @@ BlobOSLauncher.register({
 
         const description = document.createElement("p");
 
-        description.style.cssText = "color:#687985;font-size:13px";
+        description.style.cssText =
+            "color:#687985;font-size:13px";
 
         description.textContent =
             "Select an image to set it as your home screen wallpaper.";
@@ -2033,7 +2256,9 @@ BlobOSLauncher.register({
 
             button.style.cssText =
                 "padding:0;border:3px solid " +
-                (path === settingState().wallpaper ? "#33b5e5" : "#c5d0d7") +
+                (path === settingState().wallpaper
+                    ? "#33b5e5"
+                    : "#c5d0d7") +
                 ";background:#fff;cursor:pointer;height:110px;overflow:hidden";
 
             const img = document.createElement("img");
@@ -2047,7 +2272,10 @@ BlobOSLauncher.register({
             button.append(img);
 
             button.addEventListener("click", () => {
-                localStorage.setItem("blobos_wallpaper", path);
+                localStorage.setItem(
+                    "blobos_wallpaper",
+                    path
+                );
 
                 applyWallpaper(path);
 
@@ -2084,8 +2312,13 @@ BlobOSLauncher.register({
             hour12: !use24
         });
 
-        if ($("clock")) $("clock").textContent = time;
-        if ($("welcomeTime")) $("welcomeTime").textContent = time;
+        if ($("clock")) {
+            $("clock").textContent = time;
+        }
+
+        if ($("welcomeTime")) {
+            $("welcomeTime").textContent = time;
+        }
 
         if ($("date")) {
             $("date").textContent = now.toLocaleDateString([], {
@@ -2116,49 +2349,65 @@ BlobOSLauncher.register({
     // EVENT LISTENERS
     // --------------------------------------------------
 
-    $("trayButton").addEventListener("click", openTray);
+    if ($("trayButton")) {
+        $("trayButton").addEventListener("click", openTray);
+    }
 
     document.querySelectorAll("[data-close-tray]").forEach(el => {
         el.addEventListener("click", closeTray);
     });
 
-    $("appSearch").addEventListener("input", event => {
-        renderApps(event.target.value);
-    });
+    if ($("appSearch")) {
+        $("appSearch").addEventListener("input", event => {
+            renderApps(event.target.value);
+        });
+    }
 
-    $("appBack").addEventListener("click", home);
+    if ($("appBack")) {
+        $("appBack").addEventListener("click", home);
+    }
 
-    $("backButton").addEventListener("click", () => {
-        if (config.kiosk) return;
+    if ($("backButton")) {
+        $("backButton").addEventListener("click", () => {
+            if (config.kiosk) return;
 
-        if (tray.classList.contains("open")) {
+            if (tray.classList.contains("open")) {
+                closeTray();
+            } else if (appWindow.classList.contains("open")) {
+                home();
+            } else if (recentPanel) {
+                recentPanel.classList.remove("open");
+            }
+        });
+    }
+
+    if ($("homeButton")) {
+        $("homeButton").addEventListener("click", home);
+    }
+
+    if ($("recentButton")) {
+        $("recentButton").addEventListener("click", () => {
+            if (config.kiosk) return;
+
             closeTray();
-        } else if (appWindow.classList.contains("open")) {
-            home();
-        } else {
-            recentPanel.classList.remove("open");
-        }
-    });
 
-    $("homeButton").addEventListener("click", home);
+            recentPanel.classList.toggle("open");
 
-    $("recentButton").addEventListener("click", () => {
-        if (config.kiosk) return;
+            renderRecent();
+        });
+    }
 
-        closeTray();
-
-        recentPanel.classList.toggle("open");
-
-        renderRecent();
-    });
-
-    $("appMenu").addEventListener("click", () => {
-        showToast(
-            currentApp
-                ? "App: " + (apps[currentApp].name || currentApp)
-                : config.OEM || "BlobOS"
-        );
-    });
+    if ($("appMenu")) {
+        $("appMenu").addEventListener("click", () => {
+            showToast(
+                currentApp
+                    ? "App: " + (
+                        apps[currentApp].name || currentApp
+                    )
+                    : config.OEM || "BlobOS"
+            );
+        });
+    }
 
     document.addEventListener("keydown", event => {
         if (
@@ -2210,11 +2459,14 @@ BlobOSLauncher.register({
         loadServices();
 
         const defaultWallpaper =
-            config.defaultWallpaper ||
             localStorage.getItem("blobos_wallpaper") ||
+            config.defaultWallpaper ||
             wallpapers[0];
 
-        if (!localStorage.getItem("blobos_wallpaper") && config.defaultWallpaper) {
+        if (
+            !localStorage.getItem("blobos_wallpaper") &&
+            config.defaultWallpaper
+        ) {
             localStorage.setItem(
                 "blobos_wallpaper",
                 config.defaultWallpaper
@@ -2232,12 +2484,35 @@ BlobOSLauncher.register({
 
         setInterval(updateClock, 15000);
 
-        if (config.defaultLauncher === "EGOHome" && !config.disableEGOHome) {
-            document.documentElement.dataset.launcher = "EGOHome";
-            renderEGOHome();
+        // Start the launcher engine.
+
+        if (config.disableEGOHome) {
+            homeScreen.classList.add("home-hidden");
+            homeScreen.hidden = true;
+
+            if (!config.kiosk) {
+                openTray();
+            }
+        } else if (window.BlobOSLauncher) {
+            const launcherId = safeText(
+                config.defaultLauncher || "EGOHome"
+            ).toLowerCase();
+
+            const success = await BlobOSLauncher.start({
+                defaultLauncher: launcherId
+            });
+
+            if (!success) {
+                console.error(
+                    "BlobOS: Could not start the default launcher."
+                );
+
+                homeScreen.classList.remove("home-hidden");
+                homeScreen.hidden = false;
+            }
         } else {
-            document.documentElement.dataset.launcher =
-                config.defaultLauncher || "EGOHome";
+            homeScreen.hidden = false;
+            renderEGOHome();
         }
 
         if (config.kiosk && config.kioskApp) {
@@ -2245,16 +2520,27 @@ BlobOSLauncher.register({
         }
 
         setTimeout(() => {
-            if ($("boot")) $("boot").classList.add("done");
+            if ($("boot")) {
+                $("boot").classList.add("done");
+            }
         }, 2450);
 
         setTimeout(() => {
-            if ($("boot")) $("boot").remove();
+            if ($("boot")) {
+                $("boot").remove();
+            }
         }, 3000);
 
-        console.log("BlobOS: " + (config.OEM || "BlobOS") + " started");
+        console.log(
+            "BlobOS: " +
+            (config.OEM || "BlobOS") +
+            " started"
+        );
     }
 
-    start();
+    start().catch(error => {
+        console.error("BlobOS startup failed:", error);
+        showToast("BlobOS could not start correctly");
+    });
 
 })();
