@@ -1,0 +1,27 @@
+
+{
+    "defaultLauncher": "EGOHome",
+    "defaultWallpaper": "/wallpapers/1.png",
+
+    "navbarIcons": {
+        "back": "/icons/back.png",
+        "home": "/icons/home.png",
+        "recent": "/icons/recent.png"
+    },
+
+    "hideNavbar": false,
+
+    "managementDomain": "",
+    "dataCarrier": "Gantile",
+
+    "disableEGOHome": false,
+
+    "kiosk": false,
+    "kioskApp": "",
+
+    "OEM": "BlobOS",
+
+    "searchEngine": "https://www.google.com/search?q={query}",
+
+    "gamesFile": "./games.json"
+}

@@ -313,7 +313,9 @@ button {
     align-items: center;
     justify-content: center;
 }
-
+.navbar-hidden .system-bar {
+    display: none !important;
+}
 .nav-key {
     height: 48px;
     width: 82px;
