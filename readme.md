@@ -108,7 +108,7 @@ Example:
   "com.example.service": {
     "name": "Example Service",
     "icon": "service.png",
-    "service": "https://example.com/service"
+    "script": "https://example.com/script.js"
   }
 }
 ```
