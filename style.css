@@ -1265,7 +1265,7 @@ input[type="checkbox"] {
     background-color: transparent;
     border-bottom: 2px solid #33b5e5;
 }
-.settings-section > button {
+.settings-section > button, .app-content > button {
   /* Typography */
   font-family: "Classic Roboto Regular", "Droid Sans", sans-serif;
   font-size: 14px;
@@ -1297,20 +1297,20 @@ input[type="checkbox"] {
 }
 
 /* Hover State */
-.settings-section > button:hover:not(:disabled) {
+.settings-section > button:hover:not(:disabled) .app-content > button:hover:not(:disabled) {
   background-color: rgba(130, 130, 130, 0.45);
   border-top-color: rgba(255, 255, 255, 0.38);
 }
 
 /* Keyboard Focus State (Holo Blue Glow) */
-.settings-section > button:focus-visible:not(:disabled) {
+.settings-section > button:focus-visible:not(:disabled), .app-content > button:focus-visible:not(:disabled) {
   background-color: rgba(51, 181, 229, 0.25);
   border-color: #33b5e5;
   box-shadow: 0 0 4px rgba(51, 181, 229, 0.65);
 }
 
 /* Pressed / Active State (Holo Blue Fill + Outer Halo) */
-.settings-section > button:active:not(:disabled) {
+.settings-section > button:active:not(:disabled), .app-content > button:active:not(:disabled) {
   background-color: rgba(51, 181, 229, 0.55);
   background-image: none;
   border-color: #33b5e5;
@@ -1318,7 +1318,7 @@ input[type="checkbox"] {
 }
 
 /* Disabled State */
-.settings-section > button:disabled {
+.settings-section > button:disabled, .app-content > button:disabled {
   color: rgba(255, 255, 255, 0.3);
   text-shadow: none;
   background-color: rgba(110, 110, 110, 0.15);
