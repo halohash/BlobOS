@@ -188,5 +188,455 @@
         "type": "download"
       }
     ]
+  },
+  "browser": {
+    "name": "THE BEE CO. IS REAL",
+    "width": 30,
+    "height": 9,
+    "solids": [
+      {
+        "x": 12,
+        "y": 0,
+        "type": "question"
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "brick"
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "type": "question"
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "type": "brick"
+      },
+      {
+        "x": 18,
+        "y": 2,
+        "type": "ground"
+      },
+      {
+        "x": 12,
+        "y": 3,
+        "type": "ground"
+      },
+      {
+        "x": 16,
+        "y": 3,
+        "type": "ground"
+      },
+      {
+        "x": 17,
+        "y": 3,
+        "type": "ground"
+      },
+      {
+        "x": 18,
+        "y": 3,
+        "type": "ground"
+      },
+      {
+        "x": 11,
+        "y": 4,
+        "type": "ground"
+      },
+      {
+        "x": 12,
+        "y": 4,
+        "type": "ground"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "type": "brick"
+      },
+      {
+        "x": 3,
+        "y": 5,
+        "type": "question"
+      },
+      {
+        "x": 4,
+        "y": 5,
+        "type": "brick"
+      },
+      {
+        "x": 5,
+        "y": 5,
+        "type": "question"
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "type": "brick"
+      },
+      {
+        "x": 10,
+        "y": 5,
+        "type": "ground"
+      },
+      {
+        "x": 11,
+        "y": 5,
+        "type": "ground"
+      },
+      {
+        "x": 12,
+        "y": 5,
+        "type": "ground"
+      },
+      {
+        "x": 9,
+        "y": 6,
+        "type": "ground"
+      },
+      {
+        "x": 10,
+        "y": 6,
+        "type": "ground"
+      },
+      {
+        "x": 11,
+        "y": 6,
+        "type": "ground"
+      },
+      {
+        "x": 12,
+        "y": 6,
+        "type": "ground"
+      },
+      {
+        "x": 8,
+        "y": 7,
+        "type": "ground"
+      },
+      {
+        "x": 9,
+        "y": 7,
+        "type": "ground"
+      },
+      {
+        "x": 10,
+        "y": 7,
+        "type": "ground"
+      },
+      {
+        "x": 11,
+        "y": 7,
+        "type": "ground"
+      },
+      {
+        "x": 12,
+        "y": 7,
+        "type": "ground"
+      },
+      {
+        "x": 0,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 1,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 2,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 3,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 6,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 7,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 8,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 9,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 10,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 11,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 12,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 13,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 14,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 15,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 16,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 17,
+        "y": 8,
+        "type": "ground"
+      },
+      {
+        "x": 18,
+        "y": 8,
+        "type": "ground"
+      }
+    ],
+    "entities": [
+      {
+        "type": "chicken",
+        "x": 12,
+        "y": 2
+      },
+      {
+        "type": "chicken",
+        "x": 13,
+        "y": 2
+      },
+      {
+        "type": "chicken",
+        "x": 14,
+        "y": 2
+      },
+      {
+        "type": "chicken",
+        "x": 15,
+        "y": 2
+      },
+      {
+        "type": "chicken",
+        "x": 16,
+        "y": 2
+      },
+      {
+        "type": "chicken",
+        "x": 17,
+        "y": 2
+      },
+      {
+        "type": "chicken",
+        "x": 11,
+        "y": 3
+      },
+      {
+        "type": "chicken",
+        "x": 13,
+        "y": 3
+      },
+      {
+        "type": "chicken",
+        "x": 14,
+        "y": 3
+      },
+      {
+        "type": "chicken",
+        "x": 15,
+        "y": 3
+      },
+      {
+        "type": "phone",
+        "x": 3,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 4,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 5,
+        "y": 4
+      },
+      {
+        "type": "chicken",
+        "x": 10,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 13,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 14,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 15,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 16,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 17,
+        "y": 4
+      },
+      {
+        "type": "phone",
+        "x": 18,
+        "y": 4
+      },
+      {
+        "type": "chicken",
+        "x": 9,
+        "y": 5
+      },
+      {
+        "type": "phone",
+        "x": 13,
+        "y": 5
+      },
+      {
+        "type": "chicken",
+        "x": 14,
+        "y": 5
+      },
+      {
+        "type": "phone",
+        "x": 15,
+        "y": 5
+      },
+      {
+        "type": "phone",
+        "x": 16,
+        "y": 5
+      },
+      {
+        "type": "phone",
+        "x": 17,
+        "y": 5
+      },
+      {
+        "type": "phone",
+        "x": 18,
+        "y": 5
+      },
+      {
+        "type": "chicken",
+        "x": 8,
+        "y": 6
+      },
+      {
+        "type": "chicken",
+        "x": 13,
+        "y": 6
+      },
+      {
+        "type": "phone",
+        "x": 14,
+        "y": 6
+      },
+      {
+        "type": "chicken",
+        "x": 15,
+        "y": 6
+      },
+      {
+        "type": "phone",
+        "x": 16,
+        "y": 6
+      },
+      {
+        "type": "phone",
+        "x": 17,
+        "y": 6
+      },
+      {
+        "type": "phone",
+        "x": 18,
+        "y": 6
+      },
+      {
+        "type": "chicken",
+        "x": 7,
+        "y": 7
+      },
+      {
+        "type": "phone",
+        "x": 13,
+        "y": 7
+      },
+      {
+        "type": "chicken",
+        "x": 14,
+        "y": 7
+      },
+      {
+        "type": "phone",
+        "x": 15,
+        "y": 7
+      },
+      {
+        "type": "phone",
+        "x": 16,
+        "y": 7
+      },
+      {
+        "type": "phone",
+        "x": 17,
+        "y": 7
+      },
+      {
+        "type": "phone",
+        "x": 18,
+        "y": 7
+      }
+    ],
+    "theme": "dark"
   }
 }
