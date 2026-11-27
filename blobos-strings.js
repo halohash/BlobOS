@@ -12,26 +12,46 @@
 
     window.strings = await res.json();
 
-    function translateText(root) {
-      const walker = document.createTreeWalker(
-        root,
-        NodeFilter.SHOW_TEXT,
-        null
-      );
+window.getString = function (key, ...args) {
+  let value = window.strings[key];
 
-      let node;
+  if (value === undefined) return "@string/" + key;
 
-      while ((node = walker.nextNode())) {
-        node.nodeValue = node.nodeValue.replace(
-          /@string\/([a-zA-Z0-9_.-]+)/g,
-          (match, key) => {
-            return Object.prototype.hasOwnProperty.call(window.strings, key)
-              ? window.strings[key]
-              : match;
-          }
-        );
-      }
+  if (Array.isArray(value)) return value;
+
+  return String(value).replace(
+    /%(\d+)\$s/g,
+    (match, index) => {
+      const arg = Number(index) - 1;
+
+      return arg < args.length
+        ? String(args[arg])
+        : match;
     }
+  );
+};
+
+function translateText(root) {
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_TEXT,
+    null
+  );
+  let node;
+  while ((node = walker.nextNode())) {
+    node.nodeValue = node.nodeValue.replace(
+      /@string\/([a-zA-Z0-9_.-]+)((?:\|[^|]*)*)/g,
+      (match, key, rawArgs) => {
+        const args = rawArgs
+          ? rawArgs.slice(1).split("|")
+          : [];
+
+        return window.getString(key, ...args);
+      }
+    );
+  }
+}
+
 
     // Translate existing page content
     translateText(document.body);

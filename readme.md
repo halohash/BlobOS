@@ -271,6 +271,20 @@ You can customize BlobOS by editing:
 - Google Material Icons
 - Browser Local Storage
 
+## String System
+
+Added Since Nov 26, 2026.
+
+```js
+window.getString(key, ...args)
+```
+
+
+```html
+<div>@string/example</div> <!-- for strings without args-->
+<div>@string/exampleargs|ab|cd</div> <!-- for strings with args-->
+```
+
 ## Notes
 
 - Wi-Fi, airplane mode, brightness, and rotation controls are simulated interface settings. They do not directly control the device's hardware.
