@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Android XML to JSON Converter</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      color: #222;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      resize: vertical;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      background: white;
+    }
+
+    #output {
+      min-height: 220px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 24px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 11px 18px;
+      background: #009688;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00796b;
+    }
+
+    .secondary {
+      background: #555;
+    }
+
+    .secondary:hover {
+      background: #333;
+    }
+
+    #status {
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    .error {
+      color: #c62828;
+    }
+
+    .success {
+      color: #008577;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 16px 0 8px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #202124;
+        color: #eee;
+      }
+
+      textarea {
+        background: #303134;
+        color: white;
+        border-color: #555;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Android XML to JSON</h1>
+    <p>Convert Android strings.xml resources into JSON for BlobOS.</p>
+
+    <label for="input">Android strings.xml</label>
+    <textarea id="input" spellcheck="false"><resources xmlns:xliff="ignored">
+    <string name="ogstring">original string</string>
+    <!-- comment --> <skip />
+    <string-array name="array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>a b</item>
+        <item>c d</item>
+        <item>e</item>
+        <item>f</item>
+        <item>g</item>
+    </string-array>
+    <string name="number"><xliff:g id="number" example="123">123</xliff:g><xliff:g id="unit" example="KB">%1$s</xliff:g></string>
+</resources></textarea>
+
+    <div class="buttons">
+      <button onclick="convertXML()">Convert to JSON</button>
+      <button class="secondary" onclick="copyJSON()">Copy JSON</button>
+      <button class="secondary" onclick="downloadJSON()">Download JSON</button>
+    </div>
+
+    <div id="status"></div>
+
+    <label for="output">Generated JSON</label>
+    <textarea id="output" spellcheck="false" readonly></textarea>
+  </div>
+
+  <script>
+    function convertXML() {
+      const input = document.getElementById("input").value;
+      const output = document.getElementById("output");
+      const status = document.getElementById("status");
+
+      try {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(
+          input,
+          "application/xml"
+        );
+
+        const parserError = xml.querySelector("parsererror");
+
+        if (parserError) {
+          throw new Error(parserError.textContent);
+        }
+
+        const resources = xml.documentElement;
+
+        if (resources.tagName !== "resources") {
+          throw new Error("Root element must be <resources>.");
+        }
+
+        const result = {};
+
+        for (const element of resources.children) {
+          const name = element.getAttribute("name");
+
+          if (!name) continue;
+
+          if (element.tagName === "string") {
+            result[name] = getStringValue(element);
+          }
+
+          if (element.tagName === "string-array") {
+            result[name] = Array.from(
+              element.children
+            )
+            .filter(item => item.tagName === "item")
+            .map(item => getStringValue(item));
+          }
+        }
+
+        output.value = JSON.stringify(result, null, 2);
+
+        status.className = "success";
+        status.textContent =
+          "Successfully converted " +
+          Object.keys(result).length +
+          " resources!";
+
+      } catch (error) {
+        output.value = "";
+        status.className = "error";
+        status.textContent = "Conversion error: " + error.message;
+      }
+    }
+
+    function getStringValue(element) {
+      function extract(node) {
+        if (node.nodeType === Node.TEXT_NODE ||
+            node.nodeType === Node.CDATA_SECTION_NODE) {
+          return node.nodeValue;
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE &&
+            node.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
+          return "";
+        }
+
+        return Array.from(node.childNodes)
+          .map(extract)
+          .join("");
+      }
+
+      return extract(element);
+    }
+
+    async function copyJSON() {
+      const output = document.getElementById("output");
+      const status = document.getElementById("status");
+
+      if (!output.value) {
+        status.className = "error";
+        status.textContent = "Convert an XML file first.";
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output.value);
+        status.className = "success";
+        status.textContent = "JSON copied to clipboard!";
+      } catch (error) {
+        output.select();
+        document.execCommand("copy");
+        status.className = "success";
+        status.textContent = "JSON copied!";
+      }
+    }
+
+    function downloadJSON() {
+      const output = document.getElementById("output");
+      const status = document.getElementById("status");
+
+      if (!output.value) {
+        status.className = "error";
+        status.textContent = "Convert an XML file first.";
+        return;
+      }
+
+      const blob = new Blob(
+        [output.value],
+        { type: "application/json" }
+      );
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = "strings.json";
+      a.click();
+
+      URL.revokeObjectURL(url);
+
+      status.className = "success";
+      status.textContent = "Downloaded strings.json!";
+    }
+
+    convertXML();
+  </script>
+</body>
+</html>
